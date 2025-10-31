@@ -1,11 +1,14 @@
 #include "Game.h"
-#include <iostream>
+#include "Council.h"
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
+#include <iostream>
+#include <random>
 
-Game::Game(int numPlayers, unsigned int seed) 
+Game::Game(int numPlayers, unsigned int seed)
     : numPlayers_(numPlayers), currentRound_(0) {
-    
+
     if (seed == 0) {
         std::random_device rd;
         rng_.seed(rd());
@@ -21,6 +24,10 @@ Game::Game(int numPlayers, unsigned int seed)
     initializeDeck();
     dealCards();
     setupBazaar();
+}
+
+void Game::setCouncilStrategy(int playerId, council::VotingProfile profile) {
+    councilStrategies_[playerId] = council::StrategyConfig{profile};
 }
 
 void Game::initializeDeck() {
@@ -222,22 +229,33 @@ void Game::dealPhase(std::shared_ptr<Player> player) {
 }
 
 std::shared_ptr<Player> Game::getWinner() const {
+    if (players_.empty()) {
+        return nullptr;
+    }
+
+    auto councilResults = council::resolveCouncil(players_, numPlayers_, councilStrategies_);
+
     auto winner = players_[0];
-    int maxPoints = winner->getTotalPoints();
-    
+    double bestScore = winner->getTotalPoints() + councilResults.honorPoints[winner->getId()];
+
     for (size_t i = 1; i < players_.size(); ++i) {
-        int points = players_[i]->getTotalPoints();
-        if (points > maxPoints) {
-            maxPoints = points;
-            winner = players_[i];
-        } else if (points == maxPoints) {
-            // Tiebreaker: most contracts
-            if (players_[i]->getContracts().size() > winner->getContracts().size()) {
-                winner = players_[i];
+        auto player = players_[i];
+        double totalScore = player->getTotalPoints() + councilResults.honorPoints[player->getId()];
+        if (totalScore > bestScore + 1e-6) {
+            bestScore = totalScore;
+            winner = player;
+        } else if (std::fabs(totalScore - bestScore) < 1e-6) {
+            if (player->getTotalPoints() > winner->getTotalPoints()) {
+                winner = player;
+                bestScore = totalScore;
+            } else if (player->getTotalPoints() == winner->getTotalPoints() &&
+                       player->getContracts().size() > winner->getContracts().size()) {
+                winner = player;
+                bestScore = totalScore;
             }
         }
     }
-    
+
     return winner;
 }
 
@@ -245,23 +263,31 @@ void Game::printResults() const {
     std::cout << "\n\n=== GAME OVER ===" << std::endl;
     std::cout << "Total Rounds: " << currentRound_ << std::endl;
     std::cout << "\n=== FINAL STANDINGS ===" << std::endl;
-    
-    // Sort players by points
+
+    auto councilResults = council::resolveCouncil(players_, numPlayers_, councilStrategies_);
+
+    // Sort players by combined contract points and council honours
     std::vector<std::shared_ptr<Player>> sortedPlayers = players_;
     std::sort(sortedPlayers.begin(), sortedPlayers.end(),
-        [](const std::shared_ptr<Player>& a, const std::shared_ptr<Player>& b) {
-            int pointsA = a->getTotalPoints();
-            int pointsB = b->getTotalPoints();
-            if (pointsA != pointsB) return pointsA > pointsB;
+        [&](const std::shared_ptr<Player>& a, const std::shared_ptr<Player>& b) {
+            double councilA = councilResults.honorPoints[a->getId()];
+            double councilB = councilResults.honorPoints[b->getId()];
+            double totalA = a->getTotalPoints() + councilA;
+            double totalB = b->getTotalPoints() + councilB;
+            if (std::fabs(totalA - totalB) > 1e-6) return totalA > totalB;
+            if (a->getTotalPoints() != b->getTotalPoints()) return a->getTotalPoints() > b->getTotalPoints();
             return a->getContracts().size() > b->getContracts().size();
         });
-    
+
     for (size_t i = 0; i < sortedPlayers.size(); ++i) {
         auto player = sortedPlayers[i];
-        std::cout << "\n" << (i + 1) << ". " << player->getName() 
-                  << " - " << player->getTotalPoints() << " points"
-                  << " (" << player->getContracts().size() << " contracts)" << std::endl;
-        
+        double councilVP = councilResults.honorPoints[player->getId()];
+        double totalScore = player->getTotalPoints() + councilVP;
+        std::cout << "\n" << (i + 1) << ". " << player->getName()
+                  << " - " << council::formatScore(totalScore) << " total points"
+                  << " (Contracts: " << player->getTotalPoints()
+                  << ", Council Honours: " << council::formatScore(councilVP) << ")" << std::endl;
+
         std::cout << "   Contracts:" << std::endl;
         for (const auto& contract : player->getContracts()) {
             std::cout << "   - " << contract->toString() << std::endl;
@@ -269,8 +295,13 @@ void Game::printResults() const {
     }
 
     auto winner = sortedPlayers[0];
+    double winningCouncil = councilResults.honorPoints[winner->getId()];
+    double winningTotal = winner->getTotalPoints() + winningCouncil;
     std::cout << "\n*** WINNER: " << winner->getName()
-              << " with " << winner->getTotalPoints() << " points! ***" << std::endl;
+              << " with " << council::formatScore(winningTotal)
+              << " total points! ***" << std::endl;
+
+    council::printCouncilHonorResults(councilResults, numPlayers_);
 
     char choice;
     std::cout << "\nView detailed vote breakdown? (y/n): ";

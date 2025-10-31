@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
 TARGET = merchant_empire
-SOURCES = main.cpp Card.cpp Contract.cpp Player.cpp Game.cpp
+SOURCES = main.cpp Card.cpp Contract.cpp Player.cpp Council.cpp Game.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(TARGET)

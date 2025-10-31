@@ -3,6 +3,7 @@
 
 #include "Card.h"
 #include "Contract.h"
+#include "Council.h"
 #include "Player.h"
 #include <vector>
 #include <memory>
@@ -11,10 +12,11 @@
 class Game {
 public:
     Game(int numPlayers = 4, unsigned int seed = 0);
-    
+
     void play();
     void printResults() const;
-    
+    void setCouncilStrategy(int playerId, council::VotingProfile profile);
+
 private:
     int numPlayers_;
     int currentRound_;
@@ -22,6 +24,7 @@ private:
     std::vector<Card> supply_;
     std::vector<Card> bazaar_;
     std::mt19937 rng_;
+    mutable council::StrategyAssignments councilStrategies_;
     
     // Setup
     void initializeDeck();
