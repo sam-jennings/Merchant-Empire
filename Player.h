@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <map>
 
 class Player {
 public:
@@ -36,16 +37,25 @@ public:
         std::vector<Card> cards;
         int points;
         double efficiency; // points per card
-        
+
         bool operator<(const PossibleContract& other) const {
             return efficiency > other.efficiency; // Higher efficiency first
         }
     };
-    
+
+    struct VoteBreakdown {
+        std::map<Suit, int> guildStanding;
+        int caravanCapacity = 0;
+        int marketShare = 0;
+        int silkRoadMarks = 0;
+    };
+
     std::vector<PossibleContract> findPossibleContracts() const;
     PossibleContract selectBestContract() const;
     bool shouldExtendContract(std::shared_ptr<Contract> contract, const Card& card) const;
     std::vector<Card> selectCardsForTrade(int tradeCost, const std::vector<Card>& bazaar) const;
+
+    VoteBreakdown calculateVoteBreakdown() const;
     
     std::string toString() const;
     

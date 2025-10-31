@@ -267,8 +267,44 @@ void Game::printResults() const {
             std::cout << "   - " << contract->toString() << std::endl;
         }
     }
-    
+
     auto winner = sortedPlayers[0];
-    std::cout << "\n*** WINNER: " << winner->getName() 
+    std::cout << "\n*** WINNER: " << winner->getName()
               << " with " << winner->getTotalPoints() << " points! ***" << std::endl;
+
+    char choice;
+    std::cout << "\nView detailed vote breakdown? (y/n): ";
+    if (std::cin >> choice && (choice == 'y' || choice == 'Y')) {
+        printVoteBreakdown(sortedPlayers);
+    }
+}
+
+void Game::printVoteBreakdown(const std::vector<std::shared_ptr<Player>>& sortedPlayers) const {
+    std::cout << "\n=== VOTE BREAKDOWN ===" << std::endl;
+
+    std::vector<Suit> suits = {Suit::HEARTS, Suit::DIAMONDS, Suit::CLUBS, Suit::SPADES};
+
+    for (const auto& player : sortedPlayers) {
+        auto breakdown = player->calculateVoteBreakdown();
+
+        std::cout << "\n" << player->getName() << ":" << std::endl;
+        std::cout << "  Guild Standing Votes by Suit:" << std::endl;
+
+        int totalGuildStanding = 0;
+        for (auto suit : suits) {
+            int votes = 0;
+            auto it = breakdown.guildStanding.find(suit);
+            if (it != breakdown.guildStanding.end()) {
+                votes = it->second;
+            }
+            totalGuildStanding += votes;
+            std::cout << "    " << suitToString(suit) << ": " << votes << std::endl;
+        }
+
+        std::cout << "    Total Guild Standing Votes: " << totalGuildStanding << std::endl;
+        std::cout << "  Caravan Capacity Votes: " << breakdown.caravanCapacity << std::endl;
+        std::cout << "  Market Share Votes: " << breakdown.marketShare << std::endl;
+        std::cout << "  Silk Road Marks (+1 each qualifying contract): "
+                  << breakdown.silkRoadMarks << std::endl;
+    }
 }

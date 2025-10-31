@@ -42,9 +42,10 @@ private:
     bool isGameOver() const { return supply_.empty(); }
     
     std::shared_ptr<Player> getWinner() const;
-    
+
     void printGameState() const;
     void printPlayerState(const std::shared_ptr<Player>& player) const;
+    void printVoteBreakdown(const std::vector<std::shared_ptr<Player>>& sortedPlayers) const;
 };
 
 #endif
