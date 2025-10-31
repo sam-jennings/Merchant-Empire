@@ -192,12 +192,65 @@ std::vector<Card> Player::selectCardsForTrade(int tradeCost, const std::vector<C
     std::vector<Card> sorted = hand_;
     std::sort(sorted.begin(), sorted.end(),
         [](const Card& a, const Card& b) { return a.getRankValue() < b.getRankValue(); });
-    
+
     std::vector<Card> toTrade;
     for (int i = 0; i < tradeCost && i < (int)sorted.size(); ++i) {
         toTrade.push_back(sorted[i]);
     }
     return toTrade;
+}
+
+Player::VoteBreakdown Player::calculateVoteBreakdown() const {
+    VoteBreakdown breakdown;
+    breakdown.guildStanding = {
+        {Suit::HEARTS, 0},
+        {Suit::DIAMONDS, 0},
+        {Suit::CLUBS, 0},
+        {Suit::SPADES, 0}
+    };
+
+    for (const auto& contract : contracts_) {
+        if (!contract) {
+            continue;
+        }
+
+        auto type = contract->getType();
+        int size = contract->getSize();
+        const auto& cards = contract->getCards();
+
+        switch (type) {
+            case ContractType::PARTNERSHIP: {
+                if (!cards.empty()) {
+                    Suit suit = cards.front().getSuit();
+                    breakdown.guildStanding[suit] += size;
+
+                    if (Contract::isValidContract(ContractType::SILK_ROAD, cards)) {
+                        breakdown.silkRoadMarks += 1;
+                    }
+                }
+                break;
+            }
+            case ContractType::SILK_ROAD: {
+                if (!cards.empty()) {
+                    Suit suit = cards.front().getSuit();
+                    breakdown.guildStanding[suit] += size;
+                }
+                breakdown.caravanCapacity += size;
+                breakdown.silkRoadMarks += 1;
+                break;
+            }
+            case ContractType::TRADE_ROUTE: {
+                breakdown.caravanCapacity += size;
+                break;
+            }
+            case ContractType::MONOPOLY: {
+                breakdown.marketShare += size;
+                break;
+            }
+        }
+    }
+
+    return breakdown;
 }
 
 std::string Player::toString() const {
