@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Empire - Audience with the High Council</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // Icons
+        const Calculator = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+        );
+        const Plus = ({ className = "w-4 h-4" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+        );
+        const Trash = ({ className = "w-5 h-5" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        );
+        const Users = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        );
+        const Lock = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+        );
+        const Unlock = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+            </svg>
+        );
+        const Trophy = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+        );
+        const Crown = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l7 7 7-7M5 21l7-7 7 7M12 3v18" />
+            </svg>
+        );
+        const Ship = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+        );
+        const TrendingUp = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+        );
+        const AlertTriangle = ({ className = "w-5 h-5" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        );
+
+        const SUITS = ['Spades', 'Hearts', 'Diamonds', 'Clubs'];
+        const SUIT_SYMBOLS = { 'Spades': '♠', 'Hearts': '♥', 'Diamonds': '♦', 'Clubs': '♣' };
+        
+        const TRACK_NAMES = {
+          spades: 'Guild Standing (♠)',
+          hearts: 'Guild Standing (♥)',
+          diamonds: 'Guild Standing (♦)',
+          clubs: 'Guild Standing (♣)',
+          routes: 'Caravan Capacity',
+          market: 'Market Share',
+          wilds: 'Wild Votes'
+        };
+
+        // Updated honour definitions
+        const HONOURS = [
+          { id: 'guild-master', name: 'Guild Master', description: 'Votes from EXACTLY ONE guild track', icon: Ship },
+          { id: 'trade-network', name: 'Trade Network', description: 'Votes from 2+ DIFFERENT guild tracks', icon: Users },
+          { id: 'route-baron', name: 'Route Baron', description: 'Votes from Caravan Capacity track only', icon: TrendingUp },
+          { id: 'market-mogul', name: 'Market Mogul', description: 'Votes from Market Share track only', icon: Trophy },
+          { id: 'specialist', name: 'Specialist', description: 'Votes from EXACTLY ONE track (any type)', icon: Crown },
+          { id: 'merchant-prince', name: 'Merchant Prince', description: 'Votes from 2+ DIFFERENT tracks (any mix)', icon: Users }
+        ];
+
+        // Updated VP table
+        const HONOUR_VP = {
+          2: { 'guild-master': 6, 'trade-network': 4, 'route-baron': 7, 'market-mogul': 4, 'specialist': 6, 'merchant-prince': 3 },
+          3: { 'guild-master': 8, 'trade-network': 5, 'route-baron': 9, 'market-mogul': 5, 'specialist': 7, 'merchant-prince': 4 },
+          4: { 'guild-master': 8, 'trade-network': 6, 'route-baron': 9, 'market-mogul': 6, 'specialist': 7, 'merchant-prince': 5 }
+        };
+
+        // Vote calculation formula
+        const calculateVotes = (length) => {
+          if (length <= 4) return length;
+          if (length <= 6) return Math.round(length * 1.5);
+          return length * 2;
+        };
+
+        // Contract Calculator Component
+        function ContractCalculator({ playerId, onTracksCalculated }) {
+          const [contracts, setContracts] = useState([]);
+          const [showCalculator, setShowCalculator] = useState(true);
+
+          const addContract = (type) => {
+            setContracts([...contracts, { id: Date.now(), type: type, suit: 'Spades', size: 3 }]);
+          };
+
+          const updateContract = (id, field, value) => {
+            setContracts(contracts.map(c => c.id === id ? { ...c, [field]: value } : c));
+          };
+
+          const removeContract = (id) => {
+            setContracts(contracts.filter(c => c.id !== id));
+          };
+
+          const getContractWarning = (contract) => {
+            if (contract.type === 'monopoly') {
+              if (contract.size < 3) return '⚠️ Monopolies need at least 3 cards';
+              if (contract.size > 4) return '⚠️ Monopolies are limited to 4 cards';
+            } else {
+              if (contract.size < 3) return '⚠️ Contracts need at least 3 cards';
+              if (contract.size > 9) return '⚠️ Maximum contract length is 9 cards';
+            }
+            return null;
+          };
+
+          const calculatedTracks = useMemo(() => {
+            const tracks = { spades: 0, hearts: 0, diamonds: 0, clubs: 0, routes: 0, market: 0, wilds: 0 };
+            
+            contracts.forEach(contract => {
+              const suitKey = contract.suit.toLowerCase();
+              const votes = calculateVotes(contract.size);
+              
+              if (contract.type === 'partnership') {
+                tracks[suitKey] += votes;
+              } else if (contract.type === 'route') {
+                tracks.routes += votes;
+              } else if (contract.type === 'monopoly') {
+                tracks.market += votes;
+                if (contract.size === 4) {
+                  tracks.wilds += 1;
+                }
+              } else if (contract.type === 'silkroad') {
+                tracks[suitKey] += votes;
+                tracks.routes += votes;
+                tracks.wilds += 1;
+              }
+            });
+            
+            return tracks;
+          }, [contracts]);
+
+          useEffect(() => {
+            onTracksCalculated(calculatedTracks);
+          }, [calculatedTracks]);
+
+          const getContractTypeLabel = (type) => {
+            const labels = { 
+              partnership: '🚢 Partnership', 
+              route: '📦 Trade Route', 
+              monopoly: '🏭 Monopoly', 
+              silkroad: '🌟 Silk Road' 
+            };
+            return labels[type] || type;
+          };
+
+          const getContractContribution = (contract) => {
+            const votes = calculateVotes(contract.size);
+            const suitSymbol = SUIT_SYMBOLS[contract.suit];
+            
+            if (contract.type === 'partnership') {
+              return `${suitSymbol} Guild Standing: +${votes} votes`;
+            } else if (contract.type === 'route') {
+              return `Caravan Capacity: +${votes} votes`;
+            } else if (contract.type === 'monopoly') {
+              const wildNote = contract.size === 4 ? ', +1 Wild Vote' : '';
+              return `Market Share: +${votes} votes${wildNote}`;
+            } else if (contract.type === 'silkroad') {
+              return `${suitSymbol} Guild: +${votes}, Caravan: +${votes}, +1 Wild Vote`;
+            }
+          };
+
+          const getVoteBreakdown = (size) => {
+            const votes = calculateVotes(size);
+            if (size <= 4) return `${size} × 1 = ${votes}`;
+            if (size <= 6) return `${size} × 1.5 = ${votes}`;
+            return `${size} × 2 = ${votes}`;
+          };
+
+          return (
+            <div className="space-y-4">
+              <button onClick={() => setShowCalculator(!showCalculator)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                <Calculator className="w-5 h-5" />
+                {showCalculator ? 'Hide' : 'Show'} Contract Calculator
+              </button>
+
+              {showCalculator && (
+                <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-300 space-y-4">
+                  <div>
+                    <h4 className="text-lg font-bold text-blue-900 mb-2">Enter Your Contracts</h4>
+                    <p className="text-sm text-blue-700 mb-3">Formula: 3-4 cards ×1, 5-6 cards ×1.5, 7+ cards ×2</p>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <button onClick={() => addContract('partnership')} className="px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition flex items-center gap-2">
+                      <Plus /> Partnership
+                    </button>
+                    <button onClick={() => addContract('route')} className="px-3 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700 transition flex items-center gap-2">
+                      <Plus /> Trade Route
+                    </button>
+                    <button onClick={() => addContract('monopoly')} className="px-3 py-2 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition flex items-center gap-2">
+                      <Plus /> Monopoly
+                    </button>
+                    <button onClick={() => addContract('silkroad')} className="px-3 py-2 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 transition flex items-center gap-2">
+                      <Plus /> Silk Road
+                    </button>
+                  </div>
+
+                  {contracts.length === 0 ? (
+                    <div className="text-gray-500 italic text-center py-6 bg-white rounded border border-gray-200">
+                      No contracts added yet. Click the buttons above.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {contracts.map(contract => {
+                        const warning = getContractWarning(contract);
+                        return (
+                          <div key={contract.id} className={`bg-white rounded p-4 border-2 space-y-3 ${warning ? 'border-yellow-400' : 'border-gray-200'}`}>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="font-semibold text-gray-900 text-lg">{getContractTypeLabel(contract.type)}</div>
+                                <div className="text-xs text-blue-600 font-medium mt-1">{getVoteBreakdown(contract.size)}</div>
+                              </div>
+                              <button onClick={() => removeContract(contract.id)} className="text-red-600 hover:text-red-800 transition">
+                                <Trash />
+                              </button>
+                            </div>
+                            
+                            {warning && (
+                              <div className="flex items-center gap-2 text-xs text-yellow-700 bg-yellow-50 p-2 rounded border border-yellow-300">
+                                <AlertTriangle className="w-4 h-4" />
+                                <span>{warning}</span>
+                              </div>
+                            )}
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              {(contract.type === 'partnership' || contract.type === 'silkroad') && (
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Suit:</label>
+                                  <select value={contract.suit} onChange={(e) => updateContract(contract.id, 'suit', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded">
+                                    {SUITS.map(suit => <option key={suit} value={suit}>{SUIT_SYMBOLS[suit]} {suit}</option>)}
+                                  </select>
+                                </div>
+                              )}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Size:</label>
+                                <input 
+                                  type="number" 
+                                  value={contract.size} 
+                                  onChange={(e) => updateContract(contract.id, 'size', parseInt(e.target.value) || 0)} 
+                                  className="w-full px-3 py-2 border border-gray-300 rounded" 
+                                />
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-600 pt-2 border-t border-gray-200 bg-gray-50 p-2 rounded">
+                              <strong>Contributes:</strong> <span className="ml-2">{getContractContribution(contract)}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="mt-6 bg-gradient-to-br from-white to-blue-50 rounded-lg p-5 border-2 border-blue-400 shadow-md">
+                    <h5 className="font-bold text-blue-900 mb-4 text-center text-lg border-b border-blue-300 pb-2">Calculated Total Votes</h5>
+                    <div className="grid grid-cols-2 gap-3">
+                      {Object.entries(calculatedTracks).map(([key, value]) => (
+                        <div key={key} className={`flex justify-between p-2 rounded border ${key === 'wilds' ? 'bg-purple-100 border-purple-400 col-span-2 border-2' : 'bg-blue-50 border-blue-200'}`}>
+                          <span className={`font-medium ${key === 'wilds' ? 'text-purple-900 font-bold' : 'text-gray-700'}`}>{TRACK_NAMES[key]}:</span>
+                          <span className={`font-bold text-lg ${key === 'wilds' ? 'text-purple-900 text-xl' : 'text-blue-900'}`}>{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // Main App Component
+        function MerchantEmpireApp() {
+          const [gameState, setGameState] = useState('setup');
+          const [players, setPlayers] = useState([]);
+          const [newPlayerName, setNewPlayerName] = useState('');
+          const [currentPlayerId, setCurrentPlayerId] = useState(null);
+
+          const addPlayer = () => {
+            if (newPlayerName.trim()) {
+              const newPlayer = {
+                id: Date.now(),
+                name: newPlayerName.trim(),
+                tracks: { spades: 0, hearts: 0, diamonds: 0, clubs: 0, routes: 0, market: 0, wilds: 0 },
+                votes: {},
+                locked: false
+              };
+              setPlayers([...players, newPlayer]);
+              setNewPlayerName('');
+            }
+          };
+
+          const removePlayer = (playerId) => {
+            setPlayers(players.filter(p => p.id !== playerId));
+            if (currentPlayerId === playerId) setCurrentPlayerId(null);
+          };
+
+          const updatePlayerTracks = (playerId, tracks) => {
+            setPlayers(players.map(p => p.id === playerId ? { ...p, tracks } : p));
+          };
+
+          const startVoting = () => {
+            if (players.length >= 2 && players.every(p => 
+              Object.values(p.tracks).some(v => v > 0)
+            )) {
+              setGameState('voting');
+              setCurrentPlayerId(players[0].id);
+            }
+          };
+
+          const allPlayersLocked = useMemo(() => 
+            players.length > 0 && players.every(p => p.locked),
+            [players]
+          );
+
+          const showResults = () => {
+            if (allPlayersLocked) {
+              setGameState('results');
+            }
+          };
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-8">
+              <div className="max-w-7xl mx-auto">
+                <header className="text-center mb-8">
+                  <h1 className="text-5xl font-bold text-amber-900 mb-2">Merchant Empire</h1>
+                  <h2 className="text-2xl text-amber-700">Audience with the High Council</h2>
+                </header>
+
+                {gameState === 'setup' && (
+                  <SetupPhase 
+                    players={players}
+                    newPlayerName={newPlayerName}
+                    setNewPlayerName={setNewPlayerName}
+                    addPlayer={addPlayer}
+                    removePlayer={removePlayer}
+                    updatePlayerTracks={updatePlayerTracks}
+                    startVoting={startVoting}
+                  />
+                )}
+
+                {gameState === 'voting' && (
+                  <VotingPhase 
+                    players={players}
+                    setPlayers={setPlayers}
+                    currentPlayerId={currentPlayerId}
+                    setCurrentPlayerId={setCurrentPlayerId}
+                    allPlayersLocked={allPlayersLocked}
+                    showResults={showResults}
+                  />
+                )}
+
+                {gameState === 'results' && (
+                  <ResultsPhase players={players} />
+                )}
+              </div>
+            </div>
+          );
+        }
+
+        // Setup Phase Component
+        function SetupPhase({ players, newPlayerName, setNewPlayerName, addPlayer, removePlayer, updatePlayerTracks, startVoting }) {
+          const canStart = players.length >= 2 && players.every(p => 
+            Object.values(p.tracks).some(v => v > 0)
+          );
+
+          return (
+            <div className="bg-white rounded-lg shadow-xl p-8">
+              <h3 className="text-2xl font-bold text-amber-900 mb-6">Game Setup</h3>
+              
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold text-amber-800 mb-4">Add Players</h4>
+                <div className="flex gap-4 mb-4">
+                  <input
+                    type="text"
+                    value={newPlayerName}
+                    onChange={(e) => setNewPlayerName(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addPlayer()}
+                    placeholder="Player name"
+                    className="flex-1 px-4 py-2 border-2 border-amber-300 rounded-lg focus:outline-none focus:border-amber-500"
+                  />
+                  <button
+                    onClick={addPlayer}
+                    className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                  >
+                    Add Player
+                  </button>
+                </div>
+              </div>
+
+              {players.length > 0 && (
+                <div className="space-y-6">
+                  <h4 className="text-lg font-semibold text-amber-800">Calculate or Enter Track Votes</h4>
+                  {players.map(player => (
+                    <PlayerTrackSetup
+                      key={player.id}
+                      player={player}
+                      updatePlayerTracks={updatePlayerTracks}
+                      removePlayer={removePlayer}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {players.length >= 2 && (
+                <button
+                  onClick={startVoting}
+                  disabled={!canStart}
+                  className={`mt-8 w-full py-4 rounded-lg text-white text-xl font-bold transition-colors ${
+                    canStart 
+                      ? 'bg-green-600 hover:bg-green-700 cursor-pointer' 
+                      : 'bg-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {canStart ? 'Start Voting Phase' : 'All players must enter at least one vote'}
+                </button>
+              )}
+            </div>
+          );
+        }
+
+        // Player Track Setup Component
+        function PlayerTrackSetup({ player, updatePlayerTracks, removePlayer }) {
+          const [useManualOverride, setUseManualOverride] = useState(false);
+          const [manualTracks, setManualTracks] = useState(player.tracks);
+
+          const handleTracksCalculated = (calculatedTracks) => {
+            if (!useManualOverride) {
+              updatePlayerTracks(player.id, calculatedTracks);
+            }
+          };
+
+          const handleManualTrackChange = (track, value) => {
+            const newTracks = { ...manualTracks, [track]: parseInt(value) || 0 };
+            setManualTracks(newTracks);
+            if (useManualOverride) {
+              updatePlayerTracks(player.id, newTracks);
+            }
+          };
+
+          const toggleManualOverride = () => {
+            const newUseManual = !useManualOverride;
+            setUseManualOverride(newUseManual);
+            if (newUseManual) {
+              updatePlayerTracks(player.id, manualTracks);
+            }
+          };
+
+          const totalVotes = Object.values(player.tracks).reduce((sum, v) => sum + v, 0);
+
+          return (
+            <div className="bg-amber-50 rounded-lg p-6 border-2 border-amber-200">
+              <div className="flex justify-between items-center mb-4">
+                <h5 className="text-xl font-bold text-amber-900">{player.name}</h5>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-semibold text-amber-700">
+                    Total Votes: {totalVotes}
+                  </span>
+                  <button
+                    onClick={() => removePlayer(player.id)}
+                    className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              {/* Contract Calculator */}
+              {!useManualOverride && (
+                <ContractCalculator
+                  playerId={player.id}
+                  onTracksCalculated={handleTracksCalculated}
+                />
+              )}
+
+              {/* Manual Override Toggle */}
+              <div className="mt-6">
+                <button
+                  onClick={toggleManualOverride}
+                  className={`w-full px-4 py-2 rounded transition ${
+                    useManualOverride 
+                      ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {useManualOverride ? '✓ Using Manual Entry' : 'Switch to Manual Entry'}
+                </button>
+              </div>
+
+              {/* Manual Override Fields */}
+              {useManualOverride && (
+                <div className="mt-4 bg-purple-50 rounded-lg p-4 border-2 border-purple-300">
+                  <h5 className="font-semibold text-purple-900 mb-3">Manual Vote Entry:</h5>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => (
+                      <div key={trackKey}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {trackName}
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={manualTracks[trackKey]}
+                          onChange={(e) => handleManualTrackChange(trackKey, e.target.value)}
+                          className="w-full px-3 py-2 border-2 border-purple-300 rounded focus:outline-none focus:border-purple-500"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Current Votes Display */}
+              <div className="mt-4 bg-white rounded-lg p-4 border border-gray-300">
+                <h5 className="font-semibold text-gray-700 mb-3 text-sm">Current Votes for Voting Phase:</h5>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {Object.entries(player.tracks).map(([key, value]) => (
+                    <div key={key} className="flex justify-between p-1 bg-gray-50 rounded">
+                      <span className="text-gray-600">{TRACK_NAMES[key]}:</span>
+                      <span className="font-bold text-gray-900">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // Voting Phase Component
+        function VotingPhase({ players, setPlayers, currentPlayerId, setCurrentPlayerId, allPlayersLocked, showResults }) {
+          const currentPlayer = players.find(p => p.id === currentPlayerId);
+
+          const switchPlayer = (playerId) => {
+            setCurrentPlayerId(playerId);
+          };
+
+          return (
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold text-amber-900">Vote Distribution</h3>
+                  {allPlayersLocked && (
+                    <button
+                      onClick={showResults}
+                      className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold transition-colors flex items-center gap-2"
+                    >
+                      <Trophy className="w-5 h-5" />
+                      View Results
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex gap-2 mb-6 flex-wrap">
+                  {players.map(player => (
+                    <button
+                      key={player.id}
+                      onClick={() => switchPlayer(player.id)}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 ${
+                        player.id === currentPlayerId
+                          ? 'bg-amber-600 text-white'
+                          : player.locked
+                          ? 'bg-green-100 text-green-800 border-2 border-green-400'
+                          : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
+                      }`}
+                    >
+                      {player.name}
+                      {player.locked && <Lock className="w-4 h-4" />}
+                      {!player.locked && <Unlock className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-xl p-6 overflow-x-auto">
+                <h3 className="text-xl font-bold text-amber-900 mb-4">Player Track Votes Reference</h3>
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-amber-100 border-b-2 border-amber-300">
+                      <th className="px-4 py-3 text-left font-bold text-amber-900">Player</th>
+                      {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => (
+                        <th key={trackKey} className="px-4 py-3 text-center font-bold text-amber-900">
+                          {trackName}
+                        </th>
+                      ))}
+                      <th className="px-4 py-3 text-center font-bold text-amber-900">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {players.map((player) => (
+                      <tr 
+                        key={player.id}
+                        className={`border-b border-amber-200 ${
+                          player.id === currentPlayerId ? 'bg-amber-50' : ''
+                        }`}
+                      >
+                        <td className="px-4 py-3 font-semibold text-amber-900">
+                          {player.name}
+                          {player.locked && <Lock className="inline w-3 h-3 ml-2 text-green-600" />}
+                        </td>
+                        {Object.keys(TRACK_NAMES).map(trackKey => (
+                          <td key={trackKey} className="px-4 py-3 text-center text-amber-900">
+                            {player.tracks[trackKey]}
+                          </td>
+                        ))}
+                        <td className="px-4 py-3 text-center font-bold text-amber-900">
+                          {Object.values(player.tracks).reduce((sum, v) => sum + v, 0)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {currentPlayer && (
+                <PlayerVoting
+                  player={currentPlayer}
+                  players={players}
+                  setPlayers={setPlayers}
+                />
+              )}
+            </div>
+          );
+        }
+
+        // Player Voting Component
+        function PlayerVoting({ player, players, setPlayers }) {
+          const [selectedHonour, setSelectedHonour] = useState(null);
+          
+          const playerCount = players.length;
+          const vp = HONOUR_VP[Math.min(playerCount, 4)] || HONOUR_VP[4];
+
+          const updateVotes = (newVotes) => {
+            setPlayers(players.map(p => 
+              p.id === player.id ? { ...p, votes: newVotes } : p
+            ));
+          };
+
+          const toggleLock = () => {
+            setPlayers(players.map(p => 
+              p.id === player.id ? { ...p, locked: !p.locked } : p
+            ));
+          };
+
+          const totalAllocated = useMemo(() => {
+            const allocated = {};
+            Object.entries(player.votes).forEach(([honourId, allocation]) => {
+              Object.entries(allocation.sources).forEach(([track, amount]) => {
+                allocated[track] = (allocated[track] || 0) + amount;
+              });
+            });
+            return allocated;
+          }, [player.votes]);
+
+          const remainingVotes = useMemo(() => {
+            const remaining = { ...player.tracks };
+            Object.keys(remaining).forEach(track => {
+              remaining[track] -= (totalAllocated[track] || 0);
+            });
+            return remaining;
+          }, [player.tracks, totalAllocated]);
+
+          const allVotesAllocated = Object.values(remainingVotes).every(v => v === 0);
+
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-4">
+                <div className="bg-white rounded-lg shadow-xl p-6">
+                  <h4 className="text-xl font-bold text-amber-900 mb-4">Remaining Votes</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => (
+                      <div key={trackKey} className="bg-amber-50 p-3 rounded border-2 border-amber-200">
+                        <div className="text-sm text-amber-700 mb-1">{trackName}</div>
+                        <div className="text-2xl font-bold text-amber-900">
+                          <span className={remainingVotes[trackKey] === 0 ? 'text-gray-400' : ''}>
+                            {remainingVotes[trackKey]}
+                          </span>
+                          <span className="text-sm text-gray-500"> / {player.tracks[trackKey]}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-xl p-6">
+                  <h4 className="text-xl font-bold text-amber-900 mb-4">Select Honour to Allocate Votes</h4>
+                  <div className="space-y-3">
+                    {HONOURS.map(honour => {
+                      const Icon = honour.icon;
+                      const currentAllocation = player.votes[honour.id];
+                      const total = currentAllocation 
+                        ? Object.values(currentAllocation.sources).reduce((sum, v) => sum + v, 0)
+                        : 0;
+
+                      return (
+                        <button
+                          key={honour.id}
+                          onClick={() => setSelectedHonour(honour.id)}
+                          disabled={player.locked}
+                          className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${
+                            selectedHonour === honour.id
+                              ? 'border-amber-600 bg-amber-50'
+                              : total > 0 && !player.locked
+                              ? 'border-green-400 bg-green-50 hover:bg-green-100'
+                              : 'border-amber-200 hover:bg-amber-50'
+                          } ${player.locked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3 flex-1">
+                              <Icon className="w-6 h-6 text-amber-700 mt-1 flex-shrink-0" />
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-bold text-amber-900">{honour.name}</span>
+                                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold">
+                                    {vp[honour.id]} VP
+                                  </span>
+                                </div>
+                                <div className="text-sm text-amber-700 mt-1">{honour.description}</div>
+                              </div>
+                            </div>
+                            {total > 0 && !player.locked && (
+                              <div className="ml-4 px-3 py-1 bg-green-600 text-white rounded-full font-bold">
+                                {total}
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {selectedHonour && !player.locked && (
+                  <HonourAllocation
+                    player={player}
+                    honourId={selectedHonour}
+                    honour={HONOURS.find(h => h.id === selectedHonour)}
+                    remainingVotes={remainingVotes}
+                    updateVotes={updateVotes}
+                  />
+                )}
+
+                <div className="bg-white rounded-lg shadow-xl p-6 sticky top-4">
+                  <h4 className="text-lg font-bold text-amber-900 mb-4">Lock Status</h4>
+                  
+                  {!allVotesAllocated && !player.locked && (
+                    <div className="mb-4 p-3 bg-yellow-50 border-2 border-yellow-300 rounded text-sm text-yellow-800">
+                      You have unallocated votes remaining
+                    </div>
+                  )}
+
+                  <button
+                    onClick={toggleLock}
+                    className={`w-full py-3 rounded-lg font-bold text-white transition-colors flex items-center justify-center gap-2 ${
+                      player.locked
+                        ? 'bg-red-600 hover:bg-red-700'
+                        : 'bg-green-600 hover:bg-green-700'
+                    }`}
+                  >
+                    {player.locked ? (
+                      <>
+                        <Unlock className="w-5 h-5" />
+                        Unlock Votes
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-5 h-5" />
+                        Lock In Votes
+                      </>
+                    )}
+                  </button>
+
+                  {player.locked && (
+                    <p className="mt-3 text-sm text-center text-gray-600">
+                      Your votes are locked. Unlock to make changes.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // Honour Allocation Component
+        function HonourAllocation({ player, honourId, honour, remainingVotes, updateVotes }) {
+          const currentAllocation = player.votes[honourId] || { sources: {} };
+          
+          const getAvailableTracks = () => {
+            const guildTracks = ['spades', 'hearts', 'diamonds', 'clubs'];
+            const currentSources = Object.keys(currentAllocation.sources).filter(t => t !== 'wilds');
+            
+            switch (honourId) {
+              case 'guild-master':
+                // Exactly one guild
+                if (currentSources.length === 0) {
+                  return guildTracks;
+                } else {
+                  return currentSources.filter(t => guildTracks.includes(t));
+                }
+              
+              case 'trade-network':
+                // 2+ different guilds
+                return guildTracks;
+              
+              case 'route-baron':
+                return ['routes'];
+              
+              case 'market-mogul':
+                return ['market'];
+              
+              case 'specialist':
+                // Exactly one track
+                if (currentSources.length === 0) {
+                  return [...guildTracks, 'routes', 'market'];
+                } else {
+                  return currentSources;
+                }
+              
+              case 'merchant-prince':
+                // 2+ different tracks
+                return [...guildTracks, 'routes', 'market'];
+              
+              default:
+                return [];
+            }
+          };
+
+          const availableTracks = getAvailableTracks();
+          
+          const hasRegularVotes = Object.keys(currentAllocation.sources).some(t => t !== 'wilds' && currentAllocation.sources[t] > 0);
+
+          const updateTrackAllocation = (track, value) => {
+            const numValue = Math.max(0, parseInt(value) || 0);
+            const maxAllowed = remainingVotes[track] + (currentAllocation.sources[track] || 0);
+            const finalValue = Math.min(numValue, maxAllowed);
+
+            const newSources = { ...currentAllocation.sources };
+            if (finalValue === 0) {
+              delete newSources[track];
+            } else {
+              newSources[track] = finalValue;
+            }
+
+            const regularSources = Object.keys(newSources).filter(t => t !== 'wilds');
+            const guildTracks = ['spades', 'hearts', 'diamonds', 'clubs'];
+            const guildCount = regularSources.filter(t => guildTracks.includes(t)).length;
+            const sourceCount = regularSources.length;
+
+            // Validate based on honour requirements
+            let isValid = true;
+            if (honourId === 'guild-master' && sourceCount > 1) isValid = false;
+            if (honourId === 'trade-network' && regularSources.length > 0 && guildCount < regularSources.length) isValid = false;
+            if (honourId === 'specialist' && sourceCount > 1) isValid = false;
+
+            if (!isValid && regularSources.length > 0) {
+              return;
+            }
+
+            const newVotes = { ...player.votes };
+            if (Object.keys(newSources).length === 0) {
+              delete newVotes[honourId];
+            } else {
+              newVotes[honourId] = { sources: newSources };
+            }
+
+            updateVotes(newVotes);
+          };
+
+          const clearAllocation = () => {
+            const newVotes = { ...player.votes };
+            delete newVotes[honourId];
+            updateVotes(newVotes);
+          };
+
+          const total = Object.values(currentAllocation.sources).reduce((sum, v) => sum + v, 0);
+
+          return (
+            <div className="bg-white rounded-lg shadow-xl p-6">
+              <div className="flex items-start justify-between mb-4">
+                <h4 className="text-lg font-bold text-amber-900">{honour.name}</h4>
+                {total > 0 && (
+                  <button
+                    onClick={clearAllocation}
+                    className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              
+              <p className="text-sm text-amber-700 mb-4">{honour.description}</p>
+
+              <div className="space-y-3">
+                {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => {
+                  if (trackKey === 'wilds') {
+                    // Wild votes section
+                    return (
+                      <div key={trackKey} className={`pt-3 border-t-2 border-purple-200 ${!hasRegularVotes ? 'opacity-40' : ''}`}>
+                        <label className="block text-sm font-medium text-purple-800 mb-1">
+                          {trackName} ⭐
+                        </label>
+                        {!hasRegularVotes && (
+                          <p className="text-xs text-purple-700 mb-2 italic">
+                            Wild votes can only be added to honours with existing regular votes
+                          </p>
+                        )}
+                        <input
+                          type="number"
+                          min="0"
+                          max={remainingVotes.wilds + (currentAllocation.sources.wilds || 0)}
+                          value={currentAllocation.sources.wilds || 0}
+                          onChange={(e) => updateTrackAllocation('wilds', e.target.value)}
+                          disabled={!hasRegularVotes}
+                          className={`w-full px-3 py-2 border-2 rounded focus:outline-none ${
+                            hasRegularVotes
+                              ? 'border-purple-300 focus:border-purple-500'
+                              : 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                          }`}
+                        />
+                        <div className="text-xs text-gray-600 mt-1">
+                          Available: {remainingVotes.wilds + (currentAllocation.sources.wilds || 0)}
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  const isAvailable = availableTracks.includes(trackKey);
+                  const currentValue = currentAllocation.sources[trackKey] || 0;
+                  const maxValue = remainingVotes[trackKey] + currentValue;
+
+                  return (
+                    <div key={trackKey} className={isAvailable ? '' : 'opacity-40'}>
+                      <label className="block text-sm font-medium text-amber-800 mb-1">
+                        {trackName}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={maxValue}
+                        value={currentValue}
+                        onChange={(e) => updateTrackAllocation(trackKey, e.target.value)}
+                        disabled={!isAvailable}
+                        className={`w-full px-3 py-2 border-2 rounded focus:outline-none ${
+                          isAvailable
+                            ? 'border-amber-300 focus:border-amber-500'
+                            : 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                        }`}
+                      />
+                      <div className="text-xs text-gray-600 mt-1">
+                        Available: {maxValue}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {total > 0 && (
+                <div className="mt-4 pt-4 border-t-2 border-amber-200">
+                  <div className="text-lg font-bold text-amber-900">
+                    Total Votes: {total}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // Results Phase Component
+        function ResultsPhase({ players }) {
+          const playerCount = players.length;
+          const vp = HONOUR_VP[Math.min(playerCount, 4)] || HONOUR_VP[4];
+
+          const calculateResults = () => {
+            const results = {};
+
+            HONOURS.forEach(honour => {
+              const contestants = players.map(player => {
+                const allocation = player.votes[honour.id];
+                if (!allocation) return null;
+
+                const total = Object.values(allocation.sources).reduce((sum, v) => sum + v, 0);
+                if (total === 0) return null;
+
+                const tracksUsed = Object.keys(allocation.sources).filter(t => t !== 'wilds');
+                const guildTracks = ['spades', 'hearts', 'diamonds', 'clubs'];
+                const guildTracksUsed = tracksUsed.filter(t => guildTracks.includes(t));
+                const wildVotes = allocation.sources.wilds || 0;
+
+                // Validate based on honour requirements
+                let isValid = true;
+                switch (honour.id) {
+                  case 'guild-master':
+                    isValid = tracksUsed.length === 1 && guildTracksUsed.length === 1;
+                    break;
+                  case 'trade-network':
+                    isValid = guildTracksUsed.length >= 2;
+                    break;
+                  case 'route-baron':
+                    isValid = tracksUsed.length === 1 && tracksUsed[0] === 'routes';
+                    break;
+                  case 'market-mogul':
+                    isValid = tracksUsed.length === 1 && tracksUsed[0] === 'market';
+                    break;
+                  case 'specialist':
+                    isValid = tracksUsed.length === 1;
+                    break;
+                  case 'merchant-prince':
+                    isValid = tracksUsed.length >= 2;
+                    break;
+                }
+
+                if (!isValid) return null;
+
+                const totalRegularVotes = tracksUsed.reduce((sum, track) => sum + (allocation.sources[track] || 0), 0);
+                const totalCapacity = tracksUsed.reduce((sum, track) => sum + player.tracks[track], 0);
+                const utilization = totalCapacity > 0 ? totalRegularVotes / totalCapacity : 0;
+
+                const totalPlayerVotes = Object.entries(player.tracks)
+                  .filter(([track]) => track !== 'wilds')
+                  .reduce((sum, [, v]) => sum + v, 0);
+                const focus = totalPlayerVotes > 0 ? totalRegularVotes / totalPlayerVotes : 0;
+
+                return {
+                  playerId: player.id,
+                  playerName: player.name,
+                  total,
+                  utilization,
+                  focus,
+                  breadth: tracksUsed.length,
+                  tracksUsed,
+                  sources: allocation.sources,
+                  wildVotes
+                };
+              }).filter(c => c !== null);
+
+              if (contestants.length === 0) {
+                results[honour.id] = { winners: [], contestants: [], vpPerWinner: 0 };
+                return;
+              }
+
+              contestants.sort((a, b) => {
+                if (a.total !== b.total) return b.total - a.total;
+                if (Math.abs(a.utilization - b.utilization) > 0.0001) return b.utilization - a.utilization;
+                if (Math.abs(a.focus - b.focus) > 0.0001) return b.focus - a.focus;
+                
+                if (honour.id === 'trade-network' || honour.id === 'merchant-prince') {
+                  if (a.breadth !== b.breadth) return b.breadth - a.breadth;
+                }
+                
+                return 0;
+              });
+
+              const topTotal = contestants[0].total;
+              const topUtil = contestants[0].utilization;
+              const topFocus = contestants[0].focus;
+              const topBreadth = contestants[0].breadth;
+
+              const winners = contestants.filter(c => 
+                c.total === topTotal &&
+                Math.abs(c.utilization - topUtil) < 0.0001 &&
+                Math.abs(c.focus - topFocus) < 0.0001 &&
+                (honour.id !== 'trade-network' && honour.id !== 'merchant-prince' || c.breadth === topBreadth)
+              );
+
+              results[honour.id] = {
+                winners,
+                contestants,
+                vpPerWinner: vp[honour.id] / winners.length
+              };
+            });
+
+            return results;
+          };
+
+          const results = calculateResults();
+
+          const finalScores = players.map(player => {
+            let totalVP = 0;
+            Object.values(results).forEach(result => {
+              if (result.winners && result.winners.some(w => w.playerId === player.id)) {
+                totalVP += result.vpPerWinner;
+              }
+            });
+            return { playerId: player.id, playerName: player.name, totalVP };
+          });
+
+          finalScores.sort((a, b) => b.totalVP - a.totalVP);
+
+          return (
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-xl p-8">
+                <h3 className="text-3xl font-bold text-amber-900 mb-6 text-center">
+                  Council Honours Results
+                </h3>
+
+                <div className="mb-8 p-6 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-lg border-2 border-amber-400">
+                  <h4 className="text-2xl font-bold text-amber-900 mb-4">Final Standings</h4>
+                  <div className="space-y-2">
+                    {finalScores.map((score, index) => (
+                      <div key={score.playerId} className="flex items-center justify-between p-3 bg-white rounded">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl font-bold text-amber-700">#{index + 1}</span>
+                          <span className="text-xl font-bold text-amber-900">{score.playerName}</span>
+                        </div>
+                        <span className="text-2xl font-bold text-green-700">{score.totalVP.toFixed(1)} VP</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {HONOURS.map(honour => {
+                    const result = results[honour.id];
+                    const Icon = honour.icon;
+
+                    return (
+                      <div key={honour.id} className="bg-amber-50 rounded-lg p-6 border-2 border-amber-300">
+                        <div className="flex items-start gap-3 mb-4">
+                          <Icon className="w-8 h-8 text-amber-700 flex-shrink-0 mt-1" />
+                          <div className="flex-1">
+                            <h5 className="text-xl font-bold text-amber-900">{honour.name}</h5>
+                            <p className="text-sm text-amber-700">{honour.description}</p>
+                            <p className="text-sm font-semibold text-green-700 mt-1">
+                              Worth: {vp[honour.id]} VP
+                            </p>
+                          </div>
+                        </div>
+
+                        {result.contestants.length === 0 ? (
+                          <div className="text-gray-500 italic">No valid bids for this honour</div>
+                        ) : (
+                          <div className="space-y-3">
+                            {result.contestants.map((contestant) => {
+                              const isWinner = result.winners.some(w => w.playerId === contestant.playerId);
+                              
+                              return (
+                                <div
+                                  key={contestant.playerId}
+                                  className={`p-4 rounded ${
+                                    isWinner
+                                      ? 'bg-green-100 border-2 border-green-400'
+                                      : 'bg-white border-2 border-gray-200'
+                                  }`}
+                                >
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                      <span className="font-bold text-lg text-amber-900">
+                                        {contestant.playerName}
+                                      </span>
+                                      {isWinner && (
+                                        <span className="ml-3 px-3 py-1 bg-green-600 text-white rounded-full text-sm font-bold">
+                                          Winner - {result.vpPerWinner.toFixed(1)} VP
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-2xl font-bold text-amber-700">
+                                      {contestant.total}
+                                    </span>
+                                  </div>
+
+                                  <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                      <span className="text-gray-600">Utilization:</span>
+                                      <span className="ml-2 font-semibold">
+                                        {(contestant.utilization * 100).toFixed(1)}%
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-600">Focus:</span>
+                                      <span className="ml-2 font-semibold">
+                                        {(contestant.focus * 100).toFixed(1)}%
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-2 text-sm">
+                                    <span className="text-gray-600">Sources:</span>
+                                    <div className="ml-2 mt-1 flex flex-wrap gap-2">
+                                      {Object.entries(contestant.sources)
+                                        .filter(([track]) => track !== 'wilds')
+                                        .map(([track, amount]) => (
+                                          <span key={track} className="px-2 py-1 bg-amber-100 rounded text-amber-900 font-medium">
+                                            {TRACK_NAMES[track]}: {amount}
+                                          </span>
+                                        ))}
+                                      {contestant.wildVotes > 0 && (
+                                        <span className="px-2 py-1 bg-purple-100 rounded text-purple-900 font-medium">
+                                          ⭐ Wild: {contestant.wildVotes}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MerchantEmpireApp />);
+    </script>
+</body>
+</html>
