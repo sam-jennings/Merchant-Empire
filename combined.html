@@ -9,7 +9,12 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+
     <style>
         body {
             margin: 0;
@@ -82,6 +87,16 @@
         const AlertTriangle = ({ className = "w-5 h-5" }) => (
             <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        );
+        const Moon = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        );
+        const Sun = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
         );
 
@@ -221,10 +236,10 @@
               </button>
 
               {showCalculator && (
-                <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-300 space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-6 border-2 border-blue-300 dark:border-blue-700 space-y-4">
                   <div>
-                    <h4 className="text-lg font-bold text-blue-900 mb-2">Enter Your Contracts</h4>
-                    <p className="text-sm text-blue-700 mb-3">Formula: 3-4 cards ×1, 5-6 cards ×1.5, 7+ cards ×2</p>
+                    <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2">Enter Your Contracts</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">Formula: 3-4 cards ×1, 5-6 cards ×1.5, 7+ cards ×2</p>
                   </div>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -243,7 +258,7 @@
                   </div>
 
                   {contracts.length === 0 ? (
-                    <div className="text-gray-500 italic text-center py-6 bg-white rounded border border-gray-200">
+                    <div className="text-gray-500 dark:text-gray-400 italic text-center py-6 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
                       No contracts added yet. Click the buttons above.
                     </div>
                   ) : (
@@ -251,44 +266,44 @@
                       {contracts.map(contract => {
                         const warning = getContractWarning(contract);
                         return (
-                          <div key={contract.id} className={`bg-white rounded p-4 border-2 space-y-3 ${warning ? 'border-yellow-400' : 'border-gray-200'}`}>
+                          <div key={contract.id} className={`bg-white dark:bg-gray-800 rounded p-4 border-2 space-y-3 ${warning ? 'border-yellow-400 dark:border-yellow-500' : 'border-gray-200 dark:border-gray-600'}`}>
                             <div className="flex justify-between items-start">
                               <div>
-                                <div className="font-semibold text-gray-900 text-lg">{getContractTypeLabel(contract.type)}</div>
-                                <div className="text-xs text-blue-600 font-medium mt-1">{getVoteBreakdown(contract.size)}</div>
+                                <div className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{getContractTypeLabel(contract.type)}</div>
+                                <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-1">{getVoteBreakdown(contract.size)}</div>
                               </div>
-                              <button onClick={() => removeContract(contract.id)} className="text-red-600 hover:text-red-800 transition">
+                              <button onClick={() => removeContract(contract.id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition">
                                 <Trash />
                               </button>
                             </div>
-                            
+
                             {warning && (
-                              <div className="flex items-center gap-2 text-xs text-yellow-700 bg-yellow-50 p-2 rounded border border-yellow-300">
+                              <div className="flex items-center gap-2 text-xs text-yellow-700 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded border border-yellow-300 dark:border-yellow-600">
                                 <AlertTriangle className="w-4 h-4" />
                                 <span>{warning}</span>
                               </div>
                             )}
-                            
+
                             <div className="grid grid-cols-2 gap-3">
                               {(contract.type === 'partnership' || contract.type === 'silkroad') && (
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">Suit:</label>
-                                  <select value={contract.suit} onChange={(e) => updateContract(contract.id, 'suit', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded">
+                                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Suit:</label>
+                                  <select value={contract.suit} onChange={(e) => updateContract(contract.id, 'suit', e.target.value)} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white">
                                     {SUITS.map(suit => <option key={suit} value={suit}>{SUIT_SYMBOLS[suit]} {suit}</option>)}
                                   </select>
                                 </div>
                               )}
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Size:</label>
-                                <input 
-                                  type="number" 
-                                  value={contract.size} 
-                                  onChange={(e) => updateContract(contract.id, 'size', parseInt(e.target.value) || 0)} 
-                                  className="w-full px-3 py-2 border border-gray-300 rounded" 
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Size:</label>
+                                <input
+                                  type="number"
+                                  value={contract.size}
+                                  onChange={(e) => updateContract(contract.id, 'size', parseInt(e.target.value) || 0)}
+                                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white"
                                 />
                               </div>
                             </div>
-                            <div className="text-xs text-gray-600 pt-2 border-t border-gray-200 bg-gray-50 p-2 rounded">
+                            <div className="text-xs text-gray-600 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 p-2 rounded">
                               <strong>Contributes:</strong> <span className="ml-2">{getContractContribution(contract)}</span>
                             </div>
                           </div>
@@ -297,13 +312,13 @@
                     </div>
                   )}
 
-                  <div className="mt-6 bg-gradient-to-br from-white to-blue-50 rounded-lg p-5 border-2 border-blue-400 shadow-md">
-                    <h5 className="font-bold text-blue-900 mb-4 text-center text-lg border-b border-blue-300 pb-2">Calculated Total Votes</h5>
+                  <div className="mt-6 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/30 rounded-lg p-5 border-2 border-blue-400 dark:border-blue-600 shadow-md">
+                    <h5 className="font-bold text-blue-900 dark:text-blue-100 mb-4 text-center text-lg border-b border-blue-300 dark:border-blue-600 pb-2">Calculated Total Votes</h5>
                     <div className="grid grid-cols-2 gap-3">
                       {Object.entries(calculatedTracks).map(([key, value]) => (
-                        <div key={key} className={`flex justify-between p-2 rounded border ${key === 'wilds' ? 'bg-purple-100 border-purple-400 col-span-2 border-2' : 'bg-blue-50 border-blue-200'}`}>
-                          <span className={`font-medium ${key === 'wilds' ? 'text-purple-900 font-bold' : 'text-gray-700'}`}>{TRACK_NAMES[key]}:</span>
-                          <span className={`font-bold text-lg ${key === 'wilds' ? 'text-purple-900 text-xl' : 'text-blue-900'}`}>{value}</span>
+                        <div key={key} className={`flex justify-between p-2 rounded border ${key === 'wilds' ? 'bg-purple-100 dark:bg-purple-900/50 border-purple-400 dark:border-purple-600 col-span-2 border-2' : 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700'}`}>
+                          <span className={`font-medium ${key === 'wilds' ? 'text-purple-900 dark:text-purple-200 font-bold' : 'text-gray-700 dark:text-gray-300'}`}>{TRACK_NAMES[key]}:</span>
+                          <span className={`font-bold text-lg ${key === 'wilds' ? 'text-purple-900 dark:text-purple-200 text-xl' : 'text-blue-900 dark:text-blue-100'}`}>{value}</span>
                         </div>
                       ))}
                     </div>
@@ -320,6 +335,21 @@
           const [players, setPlayers] = useState([]);
           const [newPlayerName, setNewPlayerName] = useState('');
           const [currentPlayerId, setCurrentPlayerId] = useState(null);
+          const [darkMode, setDarkMode] = useState(() => {
+            const saved = localStorage.getItem('merchantEmpireDarkMode');
+            return saved ? JSON.parse(saved) : false;
+          });
+
+          useEffect(() => {
+            localStorage.setItem('merchantEmpireDarkMode', JSON.stringify(darkMode));
+            if (darkMode) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          }, [darkMode]);
+
+          const toggleDarkMode = () => setDarkMode(!darkMode);
 
           const addPlayer = () => {
             if (newPlayerName.trim()) {
@@ -365,11 +395,18 @@
           };
 
           return (
-            <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-8">
+            <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 p-8 transition-colors duration-300">
               <div className="max-w-7xl mx-auto">
-                <header className="text-center mb-8">
-                  <h1 className="text-5xl font-bold text-amber-900 mb-2">Merchant Empire</h1>
-                  <h2 className="text-2xl text-amber-700">Audience with the High Council</h2>
+                <header className="text-center mb-8 relative">
+                  <button
+                    onClick={toggleDarkMode}
+                    className="absolute right-0 top-0 p-3 rounded-lg bg-amber-200 dark:bg-gray-700 hover:bg-amber-300 dark:hover:bg-gray-600 transition-colors"
+                    aria-label="Toggle dark mode"
+                  >
+                    {darkMode ? <Sun className="w-6 h-6 text-yellow-500" /> : <Moon className="w-6 h-6 text-amber-700" />}
+                  </button>
+                  <h1 className="text-5xl font-bold text-amber-900 dark:text-amber-100 mb-2">Merchant Empire</h1>
+                  <h2 className="text-2xl text-amber-700 dark:text-amber-300">Audience with the High Council</h2>
                 </header>
 
                 {gameState === 'setup' && (
@@ -410,11 +447,11 @@
           );
 
           return (
-            <div className="bg-white rounded-lg shadow-xl p-8">
-              <h3 className="text-2xl font-bold text-amber-900 mb-6">Game Setup</h3>
-              
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
+              <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-6">Game Setup</h3>
+
               <div className="mb-8">
-                <h4 className="text-lg font-semibold text-amber-800 mb-4">Add Players</h4>
+                <h4 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-4">Add Players</h4>
                 <div className="flex gap-4 mb-4">
                   <input
                     type="text"
@@ -422,7 +459,7 @@
                     onChange={(e) => setNewPlayerName(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addPlayer()}
                     placeholder="Player name"
-                    className="flex-1 px-4 py-2 border-2 border-amber-300 rounded-lg focus:outline-none focus:border-amber-500"
+                    className="flex-1 px-4 py-2 border-2 border-amber-300 dark:border-amber-600 rounded-lg focus:outline-none focus:border-amber-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                   <button
                     onClick={addPlayer}
@@ -435,7 +472,7 @@
 
               {players.length > 0 && (
                 <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-amber-800">Calculate or Enter Track Votes</h4>
+                  <h4 className="text-lg font-semibold text-amber-800 dark:text-amber-200">Calculate or Enter Track Votes</h4>
                   {players.map(player => (
                     <PlayerTrackSetup
                       key={player.id}
@@ -452,9 +489,9 @@
                   onClick={startVoting}
                   disabled={!canStart}
                   className={`mt-8 w-full py-4 rounded-lg text-white text-xl font-bold transition-colors ${
-                    canStart 
-                      ? 'bg-green-600 hover:bg-green-700 cursor-pointer' 
-                      : 'bg-gray-400 cursor-not-allowed'
+                    canStart
+                      ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
+                      : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
                   }`}
                 >
                   {canStart ? 'Start Voting Phase' : 'All players must enter at least one vote'}
@@ -494,11 +531,11 @@
           const totalVotes = Object.values(player.tracks).reduce((sum, v) => sum + v, 0);
 
           return (
-            <div className="bg-amber-50 rounded-lg p-6 border-2 border-amber-200">
+            <div className="bg-amber-50 dark:bg-gray-700 rounded-lg p-6 border-2 border-amber-200 dark:border-gray-600">
               <div className="flex justify-between items-center mb-4">
-                <h5 className="text-xl font-bold text-amber-900">{player.name}</h5>
+                <h5 className="text-xl font-bold text-amber-900 dark:text-amber-100">{player.name}</h5>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-semibold text-amber-700">
+                  <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
                     Total Votes: {totalVotes}
                   </span>
                   <button
@@ -523,9 +560,9 @@
                 <button
                   onClick={toggleManualOverride}
                   className={`w-full px-4 py-2 rounded transition ${
-                    useManualOverride 
-                      ? 'bg-purple-600 text-white hover:bg-purple-700' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    useManualOverride
+                      ? 'bg-purple-600 text-white hover:bg-purple-700'
+                      : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'
                   }`}
                 >
                   {useManualOverride ? '✓ Using Manual Entry' : 'Switch to Manual Entry'}
@@ -534,12 +571,12 @@
 
               {/* Manual Override Fields */}
               {useManualOverride && (
-                <div className="mt-4 bg-purple-50 rounded-lg p-4 border-2 border-purple-300">
-                  <h5 className="font-semibold text-purple-900 mb-3">Manual Vote Entry:</h5>
+                <div className="mt-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg p-4 border-2 border-purple-300 dark:border-purple-700">
+                  <h5 className="font-semibold text-purple-900 dark:text-purple-200 mb-3">Manual Vote Entry:</h5>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => (
                       <div key={trackKey}>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           {trackName}
                         </label>
                         <input
@@ -547,7 +584,7 @@
                           min="0"
                           value={manualTracks[trackKey]}
                           onChange={(e) => handleManualTrackChange(trackKey, e.target.value)}
-                          className="w-full px-3 py-2 border-2 border-purple-300 rounded focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 border-2 border-purple-300 dark:border-purple-600 rounded focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white"
                         />
                       </div>
                     ))}
@@ -556,13 +593,13 @@
               )}
 
               {/* Current Votes Display */}
-              <div className="mt-4 bg-white rounded-lg p-4 border border-gray-300">
-                <h5 className="font-semibold text-gray-700 mb-3 text-sm">Current Votes for Voting Phase:</h5>
+              <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-300 dark:border-gray-600">
+                <h5 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm">Current Votes for Voting Phase:</h5>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   {Object.entries(player.tracks).map(([key, value]) => (
-                    <div key={key} className="flex justify-between p-1 bg-gray-50 rounded">
-                      <span className="text-gray-600">{TRACK_NAMES[key]}:</span>
-                      <span className="font-bold text-gray-900">{value}</span>
+                    <div key={key} className="flex justify-between p-1 bg-gray-50 dark:bg-gray-700 rounded">
+                      <span className="text-gray-600 dark:text-gray-400">{TRACK_NAMES[key]}:</span>
+                      <span className="font-bold text-gray-900 dark:text-gray-100">{value}</span>
                     </div>
                   ))}
                 </div>
@@ -581,9 +618,9 @@
 
           return (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow-xl p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-amber-900">Vote Distribution</h3>
+                  <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100">Vote Distribution</h3>
                   {allPlayersLocked && (
                     <button
                       onClick={showResults}
@@ -604,8 +641,8 @@
                         player.id === currentPlayerId
                           ? 'bg-amber-600 text-white'
                           : player.locked
-                          ? 'bg-green-100 text-green-800 border-2 border-green-400'
-                          : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
+                          ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 border-2 border-green-400 dark:border-green-600'
+                          : 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-900/50'
                       }`}
                     >
                       {player.name}
@@ -616,38 +653,38 @@
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-xl p-6 overflow-x-auto">
-                <h3 className="text-xl font-bold text-amber-900 mb-4">Player Track Votes Reference</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 overflow-x-auto">
+                <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-4">Player Track Votes Reference</h3>
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="bg-amber-100 border-b-2 border-amber-300">
-                      <th className="px-4 py-3 text-left font-bold text-amber-900">Player</th>
+                    <tr className="bg-amber-100 dark:bg-amber-900/30 border-b-2 border-amber-300 dark:border-amber-700">
+                      <th className="px-4 py-3 text-left font-bold text-amber-900 dark:text-amber-100">Player</th>
                       {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => (
-                        <th key={trackKey} className="px-4 py-3 text-center font-bold text-amber-900">
+                        <th key={trackKey} className="px-4 py-3 text-center font-bold text-amber-900 dark:text-amber-100">
                           {trackName}
                         </th>
                       ))}
-                      <th className="px-4 py-3 text-center font-bold text-amber-900">Total</th>
+                      <th className="px-4 py-3 text-center font-bold text-amber-900 dark:text-amber-100">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {players.map((player) => (
-                      <tr 
+                      <tr
                         key={player.id}
-                        className={`border-b border-amber-200 ${
-                          player.id === currentPlayerId ? 'bg-amber-50' : ''
+                        className={`border-b border-amber-200 dark:border-amber-800 ${
+                          player.id === currentPlayerId ? 'bg-amber-50 dark:bg-amber-900/20' : ''
                         }`}
                       >
-                        <td className="px-4 py-3 font-semibold text-amber-900">
+                        <td className="px-4 py-3 font-semibold text-amber-900 dark:text-amber-100">
                           {player.name}
-                          {player.locked && <Lock className="inline w-3 h-3 ml-2 text-green-600" />}
+                          {player.locked && <Lock className="inline w-3 h-3 ml-2 text-green-600 dark:text-green-400" />}
                         </td>
                         {Object.keys(TRACK_NAMES).map(trackKey => (
-                          <td key={trackKey} className="px-4 py-3 text-center text-amber-900">
+                          <td key={trackKey} className="px-4 py-3 text-center text-amber-900 dark:text-amber-100">
                             {player.tracks[trackKey]}
                           </td>
                         ))}
-                        <td className="px-4 py-3 text-center font-bold text-amber-900">
+                        <td className="px-4 py-3 text-center font-bold text-amber-900 dark:text-amber-100">
                           {Object.values(player.tracks).reduce((sum, v) => sum + v, 0)}
                         </td>
                       </tr>
@@ -709,30 +746,30 @@
           return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
-                <div className="bg-white rounded-lg shadow-xl p-6">
-                  <h4 className="text-xl font-bold text-amber-900 mb-4">Remaining Votes</h4>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+                  <h4 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-4">Remaining Votes</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => (
-                      <div key={trackKey} className="bg-amber-50 p-3 rounded border-2 border-amber-200">
-                        <div className="text-sm text-amber-700 mb-1">{trackName}</div>
-                        <div className="text-2xl font-bold text-amber-900">
-                          <span className={remainingVotes[trackKey] === 0 ? 'text-gray-400' : ''}>
+                      <div key={trackKey} className="bg-amber-50 dark:bg-amber-900/30 p-3 rounded border-2 border-amber-200 dark:border-amber-700">
+                        <div className="text-sm text-amber-700 dark:text-amber-300 mb-1">{trackName}</div>
+                        <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                          <span className={remainingVotes[trackKey] === 0 ? 'text-gray-400 dark:text-gray-500' : ''}>
                             {remainingVotes[trackKey]}
                           </span>
-                          <span className="text-sm text-gray-500"> / {player.tracks[trackKey]}</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400"> / {player.tracks[trackKey]}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-xl p-6">
-                  <h4 className="text-xl font-bold text-amber-900 mb-4">Select Honour to Allocate Votes</h4>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+                  <h4 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-4">Select Honour to Allocate Votes</h4>
                   <div className="space-y-3">
                     {HONOURS.map(honour => {
                       const Icon = honour.icon;
                       const currentAllocation = player.votes[honour.id];
-                      const total = currentAllocation 
+                      const total = currentAllocation
                         ? Object.values(currentAllocation.sources).reduce((sum, v) => sum + v, 0)
                         : 0;
 
@@ -743,23 +780,23 @@
                           disabled={player.locked}
                           className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${
                             selectedHonour === honour.id
-                              ? 'border-amber-600 bg-amber-50'
+                              ? 'border-amber-600 bg-amber-50 dark:bg-amber-900/30'
                               : total > 0 && !player.locked
-                              ? 'border-green-400 bg-green-50 hover:bg-green-100'
-                              : 'border-amber-200 hover:bg-amber-50'
+                              ? 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50'
+                              : 'border-amber-200 dark:border-gray-600 hover:bg-amber-50 dark:hover:bg-gray-700'
                           } ${player.locked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex items-start gap-3 flex-1">
-                              <Icon className="w-6 h-6 text-amber-700 mt-1 flex-shrink-0" />
+                              <Icon className="w-6 h-6 text-amber-700 dark:text-amber-300 mt-1 flex-shrink-0" />
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-bold text-amber-900">{honour.name}</span>
-                                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold">
+                                  <span className="font-bold text-amber-900 dark:text-amber-100">{honour.name}</span>
+                                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 rounded text-xs font-bold">
                                     {vp[honour.id]} VP
                                   </span>
                                 </div>
-                                <div className="text-sm text-amber-700 mt-1">{honour.description}</div>
+                                <div className="text-sm text-amber-700 dark:text-amber-300 mt-1">{honour.description}</div>
                               </div>
                             </div>
                             {total > 0 && !player.locked && (
@@ -786,11 +823,11 @@
                   />
                 )}
 
-                <div className="bg-white rounded-lg shadow-xl p-6 sticky top-4">
-                  <h4 className="text-lg font-bold text-amber-900 mb-4">Lock Status</h4>
-                  
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 sticky top-4">
+                  <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-4">Lock Status</h4>
+
                   {!allVotesAllocated && !player.locked && (
-                    <div className="mb-4 p-3 bg-yellow-50 border-2 border-yellow-300 rounded text-sm text-yellow-800">
+                    <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600 rounded text-sm text-yellow-800 dark:text-yellow-200">
                       You have unallocated votes remaining
                     </div>
                   )}
@@ -817,7 +854,7 @@
                   </button>
 
                   {player.locked && (
-                    <p className="mt-3 text-sm text-center text-gray-600">
+                    <p className="mt-3 text-sm text-center text-gray-600 dark:text-gray-400">
                       Your votes are locked. Unlock to make changes.
                     </p>
                   )}
@@ -921,9 +958,9 @@
           const total = Object.values(currentAllocation.sources).reduce((sum, v) => sum + v, 0);
 
           return (
-            <div className="bg-white rounded-lg shadow-xl p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
               <div className="flex items-start justify-between mb-4">
-                <h4 className="text-lg font-bold text-amber-900">{honour.name}</h4>
+                <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100">{honour.name}</h4>
                 {total > 0 && (
                   <button
                     onClick={clearAllocation}
@@ -933,20 +970,20 @@
                   </button>
                 )}
               </div>
-              
-              <p className="text-sm text-amber-700 mb-4">{honour.description}</p>
+
+              <p className="text-sm text-amber-700 dark:text-amber-300 mb-4">{honour.description}</p>
 
               <div className="space-y-3">
                 {Object.entries(TRACK_NAMES).map(([trackKey, trackName]) => {
                   if (trackKey === 'wilds') {
                     // Wild votes section
                     return (
-                      <div key={trackKey} className={`pt-3 border-t-2 border-purple-200 ${!hasRegularVotes ? 'opacity-40' : ''}`}>
-                        <label className="block text-sm font-medium text-purple-800 mb-1">
-                          {trackName} ⭐
+                      <div key={trackKey} className={`pt-3 border-t-2 border-purple-200 dark:border-purple-700 ${!hasRegularVotes ? 'opacity-40' : ''}`}>
+                        <label className="block text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
+                          {trackName}
                         </label>
                         {!hasRegularVotes && (
-                          <p className="text-xs text-purple-700 mb-2 italic">
+                          <p className="text-xs text-purple-700 dark:text-purple-400 mb-2 italic">
                             Wild votes can only be added to honours with existing regular votes
                           </p>
                         )}
@@ -959,24 +996,24 @@
                           disabled={!hasRegularVotes}
                           className={`w-full px-3 py-2 border-2 rounded focus:outline-none ${
                             hasRegularVotes
-                              ? 'border-purple-300 focus:border-purple-500'
-                              : 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                              ? 'border-purple-300 dark:border-purple-600 focus:border-purple-500 dark:bg-gray-700 dark:text-white'
+                              : 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 cursor-not-allowed'
                           }`}
                         />
-                        <div className="text-xs text-gray-600 mt-1">
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                           Available: {remainingVotes.wilds + (currentAllocation.sources.wilds || 0)}
                         </div>
                       </div>
                     );
                   }
-                  
+
                   const isAvailable = availableTracks.includes(trackKey);
                   const currentValue = currentAllocation.sources[trackKey] || 0;
                   const maxValue = remainingVotes[trackKey] + currentValue;
 
                   return (
                     <div key={trackKey} className={isAvailable ? '' : 'opacity-40'}>
-                      <label className="block text-sm font-medium text-amber-800 mb-1">
+                      <label className="block text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
                         {trackName}
                       </label>
                       <input
@@ -988,11 +1025,11 @@
                         disabled={!isAvailable}
                         className={`w-full px-3 py-2 border-2 rounded focus:outline-none ${
                           isAvailable
-                            ? 'border-amber-300 focus:border-amber-500'
-                            : 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                            ? 'border-amber-300 dark:border-amber-600 focus:border-amber-500 dark:bg-gray-700 dark:text-white'
+                            : 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 cursor-not-allowed'
                         }`}
                       />
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Available: {maxValue}
                       </div>
                     </div>
@@ -1001,8 +1038,8 @@
               </div>
 
               {total > 0 && (
-                <div className="mt-4 pt-4 border-t-2 border-amber-200">
-                  <div className="text-lg font-bold text-amber-900">
+                <div className="mt-4 pt-4 border-t-2 border-amber-200 dark:border-amber-700">
+                  <div className="text-lg font-bold text-amber-900 dark:text-amber-100">
                     Total Votes: {total}
                   </div>
                 </div>
@@ -1134,21 +1171,21 @@
 
           return (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow-xl p-8">
-                <h3 className="text-3xl font-bold text-amber-900 mb-6 text-center">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
+                <h3 className="text-3xl font-bold text-amber-900 dark:text-amber-100 mb-6 text-center">
                   Council Honours Results
                 </h3>
 
-                <div className="mb-8 p-6 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-lg border-2 border-amber-400">
-                  <h4 className="text-2xl font-bold text-amber-900 mb-4">Final Standings</h4>
+                <div className="mb-8 p-6 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-lg border-2 border-amber-400 dark:border-amber-600">
+                  <h4 className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-4">Final Standings</h4>
                   <div className="space-y-2">
                     {finalScores.map((score, index) => (
-                      <div key={score.playerId} className="flex items-center justify-between p-3 bg-white rounded">
+                      <div key={score.playerId} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl font-bold text-amber-700">#{index + 1}</span>
-                          <span className="text-xl font-bold text-amber-900">{score.playerName}</span>
+                          <span className="text-2xl font-bold text-amber-700 dark:text-amber-300">#{index + 1}</span>
+                          <span className="text-xl font-bold text-amber-900 dark:text-amber-100">{score.playerName}</span>
                         </div>
-                        <span className="text-2xl font-bold text-green-700">{score.totalVP.toFixed(1)} VP</span>
+                        <span className="text-2xl font-bold text-green-700 dark:text-green-400">{score.totalVP.toFixed(1)} VP</span>
                       </div>
                     ))}
                   </div>
@@ -1160,37 +1197,37 @@
                     const Icon = honour.icon;
 
                     return (
-                      <div key={honour.id} className="bg-amber-50 rounded-lg p-6 border-2 border-amber-300">
+                      <div key={honour.id} className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-6 border-2 border-amber-300 dark:border-amber-700">
                         <div className="flex items-start gap-3 mb-4">
-                          <Icon className="w-8 h-8 text-amber-700 flex-shrink-0 mt-1" />
+                          <Icon className="w-8 h-8 text-amber-700 dark:text-amber-300 flex-shrink-0 mt-1" />
                           <div className="flex-1">
-                            <h5 className="text-xl font-bold text-amber-900">{honour.name}</h5>
-                            <p className="text-sm text-amber-700">{honour.description}</p>
-                            <p className="text-sm font-semibold text-green-700 mt-1">
+                            <h5 className="text-xl font-bold text-amber-900 dark:text-amber-100">{honour.name}</h5>
+                            <p className="text-sm text-amber-700 dark:text-amber-300">{honour.description}</p>
+                            <p className="text-sm font-semibold text-green-700 dark:text-green-400 mt-1">
                               Worth: {vp[honour.id]} VP
                             </p>
                           </div>
                         </div>
 
                         {result.contestants.length === 0 ? (
-                          <div className="text-gray-500 italic">No valid bids for this honour</div>
+                          <div className="text-gray-500 dark:text-gray-400 italic">No valid bids for this honour</div>
                         ) : (
                           <div className="space-y-3">
                             {result.contestants.map((contestant) => {
                               const isWinner = result.winners.some(w => w.playerId === contestant.playerId);
-                              
+
                               return (
                                 <div
                                   key={contestant.playerId}
                                   className={`p-4 rounded ${
                                     isWinner
-                                      ? 'bg-green-100 border-2 border-green-400'
-                                      : 'bg-white border-2 border-gray-200'
+                                      ? 'bg-green-100 dark:bg-green-900/30 border-2 border-green-400 dark:border-green-600'
+                                      : 'bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600'
                                   }`}
                                 >
                                   <div className="flex justify-between items-start mb-2">
                                     <div>
-                                      <span className="font-bold text-lg text-amber-900">
+                                      <span className="font-bold text-lg text-amber-900 dark:text-amber-100">
                                         {contestant.playerName}
                                       </span>
                                       {isWinner && (
@@ -1199,39 +1236,39 @@
                                         </span>
                                       )}
                                     </div>
-                                    <span className="text-2xl font-bold text-amber-700">
+                                    <span className="text-2xl font-bold text-amber-700 dark:text-amber-300">
                                       {contestant.total}
                                     </span>
                                   </div>
 
                                   <div className="grid grid-cols-2 gap-2 text-sm">
                                     <div>
-                                      <span className="text-gray-600">Utilization:</span>
-                                      <span className="ml-2 font-semibold">
+                                      <span className="text-gray-600 dark:text-gray-400">Utilization:</span>
+                                      <span className="ml-2 font-semibold dark:text-gray-200">
                                         {(contestant.utilization * 100).toFixed(1)}%
                                       </span>
                                     </div>
                                     <div>
-                                      <span className="text-gray-600">Focus:</span>
-                                      <span className="ml-2 font-semibold">
+                                      <span className="text-gray-600 dark:text-gray-400">Focus:</span>
+                                      <span className="ml-2 font-semibold dark:text-gray-200">
                                         {(contestant.focus * 100).toFixed(1)}%
                                       </span>
                                     </div>
                                   </div>
 
                                   <div className="mt-2 text-sm">
-                                    <span className="text-gray-600">Sources:</span>
+                                    <span className="text-gray-600 dark:text-gray-400">Sources:</span>
                                     <div className="ml-2 mt-1 flex flex-wrap gap-2">
                                       {Object.entries(contestant.sources)
                                         .filter(([track]) => track !== 'wilds')
                                         .map(([track, amount]) => (
-                                          <span key={track} className="px-2 py-1 bg-amber-100 rounded text-amber-900 font-medium">
+                                          <span key={track} className="px-2 py-1 bg-amber-100 dark:bg-amber-900/50 rounded text-amber-900 dark:text-amber-100 font-medium">
                                             {TRACK_NAMES[track]}: {amount}
                                           </span>
                                         ))}
                                       {contestant.wildVotes > 0 && (
-                                        <span className="px-2 py-1 bg-purple-100 rounded text-purple-900 font-medium">
-                                          ⭐ Wild: {contestant.wildVotes}
+                                        <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/50 rounded text-purple-900 dark:text-purple-100 font-medium">
+                                          Wild: {contestant.wildVotes}
                                         </span>
                                       )}
                                     </div>
