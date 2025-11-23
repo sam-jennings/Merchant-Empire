@@ -99,6 +99,11 @@
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
         );
+        const Star = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+        );
 
         const SUITS = ['Spades', 'Hearts', 'Diamonds', 'Clubs'];
         const SUIT_SYMBOLS = { 'Spades': '♠', 'Hearts': '♥', 'Diamonds': '♦', 'Clubs': '♣' };
@@ -126,15 +131,47 @@
           { id: 'route-baron', name: 'Route Baron', description: 'Votes from Caravan Capacity track only', icon: TrendingUp },
           { id: 'market-mogul', name: 'Market Mogul', description: 'Votes from Market Share track only', icon: Trophy },
           { id: 'specialist', name: 'Specialist', description: 'Votes from EXACTLY ONE track (any type)', icon: Crown },
-          { id: 'merchant-prince', name: 'Merchant Prince', description: 'Votes from 2+ DIFFERENT tracks (any mix)', icon: Users }
+          { id: 'merchant-prince', name: 'Merchant Prince', description: 'Votes from 2+ DIFFERENT tracks (any mix)', icon: Users },
+          { id: 'all-tracks', name: 'All-Tracks Honour', description: 'Votes from ALL THREE track types (Guild + Caravan + Market)', icon: Star, minPlayers: 5 }
         ];
 
         // Updated VP table
         const HONOUR_VP = {
           2: { 'guild-master': 6, 'trade-network': 4, 'route-baron': 7, 'market-mogul': 4, 'specialist': 6, 'merchant-prince': 3 },
           3: { 'guild-master': 8, 'trade-network': 5, 'route-baron': 9, 'market-mogul': 5, 'specialist': 7, 'merchant-prince': 4 },
-          4: { 'guild-master': 8, 'trade-network': 6, 'route-baron': 9, 'market-mogul': 6, 'specialist': 7, 'merchant-prince': 5 }
+          4: { 'guild-master': 8, 'trade-network': 6, 'route-baron': 9, 'market-mogul': 6, 'specialist': 7, 'merchant-prince': 5 },
+          5: { 'guild-master': 8, 'trade-network': 6, 'route-baron': 9, 'market-mogul': 6, 'specialist': 7, 'merchant-prince': 5, 'all-tracks': 8 },
+          6: {
+            'guild-master': { first: 7, second: 3 },
+            'trade-network': { first: 6, second: 2 },
+            'route-baron': { first: 8, second: 3 },
+            'market-mogul': { first: 6, second: 2 },
+            'specialist': { first: 7, second: 3 },
+            'merchant-prince': { first: 5, second: 2 },
+            'all-tracks': { first: 6, second: 2 }
+          },
+          7: {
+            'guild-master': { first: 7, second: 4 },
+            'trade-network': { first: 6, second: 3 },
+            'route-baron': { first: 8, second: 4 },
+            'market-mogul': { first: 6, second: 3 },
+            'specialist': { first: 7, second: 4 },
+            'merchant-prince': { first: 5, second: 3 },
+            'all-tracks': { first: 6, second: 3 }
+          }
         };
+
+        // Helper to get VP values (handles both simple numbers and {first, second} objects)
+        const getVPValue = (vp, honourId, place = 'first') => {
+          const value = vp[honourId];
+          if (typeof value === 'object') {
+            return value[place] || 0;
+          }
+          return place === 'first' ? value : 0;
+        };
+
+        // Check if player count supports 2nd place scoring
+        const hasSecondPlace = (playerCount) => playerCount >= 6;
 
         // Vote calculation formula
         const calculateVotes = (length) => {
@@ -760,7 +797,7 @@
           const [selectedHonour, setSelectedHonour] = useState(null);
 
           const playerCount = players.length;
-          const vp = HONOUR_VP[Math.min(playerCount, 4)] || HONOUR_VP[4];
+          const vp = HONOUR_VP[Math.min(playerCount, 7)] || HONOUR_VP[7];
 
           const updateVotes = (newVotes) => {
             setPlayers(players.map(p => 
@@ -817,7 +854,7 @@
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6">
                   <h4 className="text-lg sm:text-xl font-bold text-amber-900 dark:text-amber-100 mb-3 sm:mb-4">Select Honour to Allocate Votes</h4>
                   <div className="space-y-2 sm:space-y-3">
-                    {HONOURS.map(honour => {
+                    {HONOURS.filter(honour => !honour.minPlayers || playerCount >= honour.minPlayers).map(honour => {
                       const Icon = honour.icon;
                       const currentAllocation = player.votes[honour.id];
                       const total = currentAllocation
@@ -844,7 +881,10 @@
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-bold text-amber-900 dark:text-amber-100 text-sm sm:text-base">{honour.name}</span>
                                   <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 rounded text-xs font-bold">
-                                    {vp[honour.id]} VP
+                                    {hasSecondPlace(playerCount)
+                                      ? `${getVPValue(vp, honour.id, 'first')}/${getVPValue(vp, honour.id, 'second')} VP`
+                                      : `${getVPValue(vp, honour.id, 'first')} VP`
+                                    }
                                   </span>
                                 </div>
                                 <div className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 mt-1">{honour.description}</div>
@@ -954,15 +994,83 @@
               case 'merchant-prince':
                 // 2+ different tracks
                 return [...guildTracks, 'routes', 'market'];
-              
+
+              case 'all-tracks':
+                // All three track types (guild + routes + market)
+                return [...guildTracks, 'routes', 'market'];
+
               default:
                 return [];
             }
           };
 
           const availableTracks = getAvailableTracks();
-          
+
           const hasRegularVotes = Object.keys(currentAllocation.sources).some(t => t !== 'wilds' && currentAllocation.sources[t] > 0);
+
+          // Get validation feedback for current allocation
+          const getValidationFeedback = () => {
+            const guildTracks = ['spades', 'hearts', 'diamonds', 'clubs'];
+            const currentSources = Object.keys(currentAllocation.sources).filter(t => t !== 'wilds' && currentAllocation.sources[t] > 0);
+            const guildTracksUsed = currentSources.filter(t => guildTracks.includes(t));
+            const hasRoutes = currentSources.includes('routes');
+            const hasMarket = currentSources.includes('market');
+
+            if (currentSources.length === 0) return null;
+
+            switch (honourId) {
+              case 'guild-master':
+                if (currentSources.length > 1 || guildTracksUsed.length !== 1) {
+                  return { type: 'error', message: 'Guild Master requires votes from EXACTLY ONE guild track' };
+                }
+                return { type: 'valid', message: 'Valid allocation for Guild Master' };
+
+              case 'trade-network':
+                if (guildTracksUsed.length < 2) {
+                  return { type: 'warning', message: `Cross-Guild Honour requires votes from at least 2 different guilds (currently ${guildTracksUsed.length})` };
+                }
+                return { type: 'valid', message: `Valid allocation with ${guildTracksUsed.length} guild tracks` };
+
+              case 'route-baron':
+                if (currentSources.length !== 1 || !hasRoutes) {
+                  return { type: 'error', message: 'Route Baron requires votes from Caravan Capacity track ONLY' };
+                }
+                return { type: 'valid', message: 'Valid allocation for Route Baron' };
+
+              case 'market-mogul':
+                if (currentSources.length !== 1 || !hasMarket) {
+                  return { type: 'error', message: 'Market Mogul requires votes from Market Share track ONLY' };
+                }
+                return { type: 'valid', message: 'Valid allocation for Market Mogul' };
+
+              case 'specialist':
+                if (currentSources.length > 1) {
+                  return { type: 'error', message: 'Specialist requires votes from EXACTLY ONE track' };
+                }
+                return { type: 'valid', message: 'Valid allocation for Specialist' };
+
+              case 'merchant-prince':
+                if (currentSources.length < 2) {
+                  return { type: 'warning', message: `Combined-Tracks Honour requires votes from at least 2 different tracks (currently ${currentSources.length})` };
+                }
+                return { type: 'valid', message: `Valid allocation with ${currentSources.length} tracks` };
+
+              case 'all-tracks':
+                const missing = [];
+                if (guildTracksUsed.length === 0) missing.push('Guild');
+                if (!hasRoutes) missing.push('Caravan');
+                if (!hasMarket) missing.push('Market');
+                if (missing.length > 0) {
+                  return { type: 'warning', message: `All-Tracks Honour requires Guild + Caravan + Market (missing: ${missing.join(', ')})` };
+                }
+                return { type: 'valid', message: 'Valid allocation for All-Tracks Honour' };
+
+              default:
+                return null;
+            }
+          };
+
+          const validationFeedback = getValidationFeedback();
 
           const updateTrackAllocation = (track, value) => {
             const numValue = Math.max(0, parseInt(value) || 0);
@@ -1024,6 +1132,19 @@
               </div>
 
               <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 mb-3 sm:mb-4">{honour.description}</p>
+
+              {validationFeedback && (
+                <div className={`p-2 sm:p-3 rounded mb-3 sm:mb-4 text-xs sm:text-sm ${
+                  validationFeedback.type === 'valid'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700'
+                    : validationFeedback.type === 'warning'
+                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700'
+                    : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-700'
+                }`}>
+                  {validationFeedback.type === 'valid' ? '✓ ' : validationFeedback.type === 'warning' ? '⚠ ' : '✗ '}
+                  {validationFeedback.message}
+                </div>
+              )}
 
               <div className="space-y-3">
                 {Object.entries(trackNames).map(([trackKey, trackName]) => {
@@ -1103,7 +1224,7 @@
         // Results Phase Component
         function ResultsPhase({ players, trackNames }) {
           const playerCount = players.length;
-          const vp = HONOUR_VP[Math.min(playerCount, 4)] || HONOUR_VP[4];
+          const vp = HONOUR_VP[Math.min(playerCount, 7)] || HONOUR_VP[7];
 
           const calculateResults = () => {
             const results = {};
@@ -1142,6 +1263,9 @@
                   case 'merchant-prince':
                     isValid = tracksUsed.length >= 2;
                     break;
+                  case 'all-tracks':
+                    isValid = guildTracksUsed.length >= 1 && tracksUsed.includes('routes') && tracksUsed.includes('market');
+                    break;
                 }
 
                 if (!isValid) return null;
@@ -1173,34 +1297,48 @@
                 return;
               }
 
+              // Sort by total, then utilization, then focus, then breadth (for relevant honours)
               contestants.sort((a, b) => {
                 if (a.total !== b.total) return b.total - a.total;
                 if (Math.abs(a.utilization - b.utilization) > 0.0001) return b.utilization - a.utilization;
                 if (Math.abs(a.focus - b.focus) > 0.0001) return b.focus - a.focus;
-                
-                if (honour.id === 'trade-network' || honour.id === 'merchant-prince') {
+
+                if (honour.id === 'trade-network' || honour.id === 'merchant-prince' || honour.id === 'all-tracks') {
                   if (a.breadth !== b.breadth) return b.breadth - a.breadth;
                 }
-                
+
                 return 0;
               });
 
-              const topTotal = contestants[0].total;
-              const topUtil = contestants[0].utilization;
-              const topFocus = contestants[0].focus;
-              const topBreadth = contestants[0].breadth;
+              // Helper to check if two contestants are tied
+              const areTied = (a, b) => {
+                if (a.total !== b.total) return false;
+                if (Math.abs(a.utilization - b.utilization) > 0.0001) return false;
+                if (Math.abs(a.focus - b.focus) > 0.0001) return false;
+                if (honour.id === 'trade-network' || honour.id === 'merchant-prince' || honour.id === 'all-tracks') {
+                  if (a.breadth !== b.breadth) return false;
+                }
+                return true;
+              };
 
-              const winners = contestants.filter(c => 
-                c.total === topTotal &&
-                Math.abs(c.utilization - topUtil) < 0.0001 &&
-                Math.abs(c.focus - topFocus) < 0.0001 &&
-                (honour.id !== 'trade-network' && honour.id !== 'merchant-prince' || c.breadth === topBreadth)
-              );
+              // Find first place winners
+              const firstPlace = contestants.filter(c => areTied(c, contestants[0]));
+
+              // Find second place winners (only for 6+ players)
+              let secondPlace = [];
+              if (hasSecondPlace(playerCount)) {
+                const remainingContestants = contestants.filter(c => !firstPlace.includes(c));
+                if (remainingContestants.length > 0) {
+                  secondPlace = remainingContestants.filter(c => areTied(c, remainingContestants[0]));
+                }
+              }
 
               results[honour.id] = {
-                winners,
+                winners: firstPlace,
+                secondPlace,
                 contestants,
-                vpPerWinner: vp[honour.id] / winners.length
+                vpPerFirstPlace: getVPValue(vp, honour.id, 'first') / firstPlace.length,
+                vpPerSecondPlace: secondPlace.length > 0 ? getVPValue(vp, honour.id, 'second') / secondPlace.length : 0
               };
             });
 
@@ -1213,7 +1351,9 @@
             let totalVP = 0;
             Object.values(results).forEach(result => {
               if (result.winners && result.winners.some(w => w.playerId === player.id)) {
-                totalVP += result.vpPerWinner;
+                totalVP += result.vpPerFirstPlace;
+              } else if (result.secondPlace && result.secondPlace.some(w => w.playerId === player.id)) {
+                totalVP += result.vpPerSecondPlace;
               }
             });
             return { playerId: player.id, playerName: player.name, totalVP };
@@ -1244,7 +1384,7 @@
                 </div>
 
                 <div className="space-y-4 sm:space-y-6">
-                  {HONOURS.map(honour => {
+                  {HONOURS.filter(honour => !honour.minPlayers || playerCount >= honour.minPlayers).map(honour => {
                     const result = results[honour.id];
                     const Icon = honour.icon;
 
@@ -1256,7 +1396,11 @@
                             <h5 className="text-base sm:text-xl font-bold text-amber-900 dark:text-amber-100">{honour.name}</h5>
                             <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-300">{honour.description}</p>
                             <p className="text-xs sm:text-sm font-semibold text-green-700 dark:text-green-400 mt-1">
-                              Worth: {vp[honour.id]} VP
+                              {hasSecondPlace(playerCount) ? (
+                                <>1st: {getVPValue(vp, honour.id, 'first')} VP / 2nd: {getVPValue(vp, honour.id, 'second')} VP</>
+                              ) : (
+                                <>Worth: {getVPValue(vp, honour.id, 'first')} VP</>
+                              )}
                             </p>
                           </div>
                         </div>
@@ -1266,14 +1410,17 @@
                         ) : (
                           <div className="space-y-2 sm:space-y-3">
                             {result.contestants.map((contestant) => {
-                              const isWinner = result.winners.some(w => w.playerId === contestant.playerId);
+                              const isFirstPlace = result.winners.some(w => w.playerId === contestant.playerId);
+                              const isSecondPlace = result.secondPlace && result.secondPlace.some(w => w.playerId === contestant.playerId);
 
                               return (
                                 <div
                                   key={contestant.playerId}
                                   className={`p-3 sm:p-4 rounded ${
-                                    isWinner
-                                      ? 'bg-green-100 dark:bg-green-900/30 border-2 border-green-400 dark:border-green-600'
+                                    isFirstPlace
+                                      ? 'bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-600'
+                                      : isSecondPlace
+                                      ? 'bg-gray-100 dark:bg-gray-600/30 border-2 border-gray-400 dark:border-gray-500'
                                       : 'bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600'
                                   }`}
                                 >
@@ -1282,9 +1429,14 @@
                                       <span className="font-bold text-base sm:text-lg text-amber-900 dark:text-amber-100">
                                         {contestant.playerName}
                                       </span>
-                                      {isWinner && (
-                                        <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-green-600 text-white rounded-full text-xs sm:text-sm font-bold">
-                                          Winner - {result.vpPerWinner.toFixed(1)} VP
+                                      {isFirstPlace && (
+                                        <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-yellow-500 text-white rounded-full text-xs sm:text-sm font-bold">
+                                          🥇 1st - {result.vpPerFirstPlace.toFixed(1)} VP
+                                        </span>
+                                      )}
+                                      {isSecondPlace && (
+                                        <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gray-400 text-white rounded-full text-xs sm:text-sm font-bold">
+                                          🥈 2nd - {result.vpPerSecondPlace.toFixed(1)} VP
                                         </span>
                                       )}
                                     </div>
