@@ -1074,7 +1074,7 @@
 
           const updateTrackAllocation = (track, value) => {
             const numValue = Math.max(0, parseInt(value) || 0);
-            const maxAllowed = remainingVotes[track] + (currentAllocation.sources[track] || 0);
+            const maxAllowed = Math.max(0, remainingVotes[track] + (currentAllocation.sources[track] || 0));
             const finalValue = Math.min(numValue, maxAllowed);
 
             const newSources = { ...currentAllocation.sources };
@@ -1082,21 +1082,6 @@
               delete newSources[track];
             } else {
               newSources[track] = finalValue;
-            }
-
-            const regularSources = Object.keys(newSources).filter(t => t !== 'wilds');
-            const guildTracks = ['spades', 'hearts', 'diamonds', 'clubs'];
-            const guildCount = regularSources.filter(t => guildTracks.includes(t)).length;
-            const sourceCount = regularSources.length;
-
-            // Validate based on honour requirements
-            let isValid = true;
-            if (honourId === 'guild-master' && sourceCount > 1) isValid = false;
-            if (honourId === 'trade-network' && regularSources.length > 0 && guildCount < regularSources.length) isValid = false;
-            if (honourId === 'specialist' && sourceCount > 1) isValid = false;
-
-            if (!isValid && regularSources.length > 0) {
-              return;
             }
 
             const newVotes = { ...player.votes };
