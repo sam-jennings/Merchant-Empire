@@ -260,16 +260,46 @@ const GameConfig = {
   // THEME/COLORS
   // ============================================================================
   colors: {
-    primary: 'purple',
-    secondary: 'indigo',
-    accent: 'pink',
-    success: 'green',
-    warning: 'yellow',
-    danger: 'red',
-    
-    // Gradient backgrounds
-    background: 'from-indigo-50 via-purple-50 to-pink-50',
-    cardAccent: 'from-purple-100 to-pink-100'
+    light: {
+      primary: 'purple',
+      secondary: 'indigo',
+      accent: 'pink',
+      success: 'green',
+      warning: 'yellow',
+      danger: 'red',
+      
+      // Gradient backgrounds
+      background: 'from-indigo-50 via-purple-50 to-pink-50',
+      cardAccent: 'from-purple-100 to-pink-100',
+      
+      // Specific colors
+      headerText: 'purple-900',
+      subheaderText: 'purple-700',
+      bodyText: 'gray-900',
+      mutedText: 'gray-600',
+      border: 'gray-300',
+      cardBg: 'white'
+    },
+    dark: {
+      primary: 'purple',
+      secondary: 'indigo',
+      accent: 'pink',
+      success: 'green',
+      warning: 'yellow',
+      danger: 'red',
+      
+      // Gradient backgrounds
+      background: 'from-gray-900 via-purple-900 to-indigo-900',
+      cardAccent: 'from-purple-800 to-indigo-800',
+      
+      // Specific colors
+      headerText: 'purple-300',
+      subheaderText: 'purple-400',
+      bodyText: 'gray-100',
+      mutedText: 'gray-400',
+      border: 'gray-600',
+      cardBg: 'gray-800'
+    }
   },
 
   // ============================================================================
@@ -314,7 +344,10 @@ const GameConfig = {
     totalPower: 'Total Power',
     availablePower: 'Available',
     
-    wildMagicNote: 'Wild magic can only be added to trials with existing regular power'
+    wildMagicNote: 'Wild magic can only be added to trials with existing regular power',
+    
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode'
   }
 };
 
