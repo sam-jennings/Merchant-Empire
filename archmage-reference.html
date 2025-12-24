@@ -202,7 +202,7 @@
             font-weight: 400;
         }
 
-        .card ul {
+        .card ul, .card ol {
             list-style: none;
             padding-left: 1rem;
         }
@@ -212,6 +212,20 @@
             color: var(--accent);
             margin-right: 0.5rem;
             font-size: 0.8rem;
+        }
+
+        .card ol {
+            counter-reset: item;
+        }
+
+        .card ol li {
+            counter-increment: item;
+        }
+
+        .card ol li::before {
+            content: counter(item) ". ";
+            color: var(--accent);
+            margin-right: 0.5rem;
         }
 
         .highlight {
@@ -363,8 +377,9 @@
             <button class="tab" onclick="showTab('spells')">Spells</button>
             <button class="tab" onclick="showTab('turn')">Turn Structure</button>
             <button class="tab" onclick="showTab('casting')">Casting</button>
-            <button class="tab" onclick="showTab('endgame')">End Game</button>
-            <button class="tab" onclick="showTab('tables')">Tables</button>
+            <button class="tab" onclick="showTab('wildmagic')">Wild Magic</button>
+            <button class="tab" onclick="showTab('scoring')">Simple Scoring</button>
+            <button class="tab" onclick="showTab('trials')">Ascension Trials</button>
         </div>
 
         <!-- SETUP TAB -->
@@ -680,197 +695,129 @@
                         3 three-component Enchantments = 4 total counters (1 base + 3 bonus)
                     </div>
                 </div>
-
-                <div class="card wide-card">
-                    <div class="card-icon">⚠️</div>
-                    <h3>Wild Magic Effects on Casting</h3>
-                    <p>When Wild Magic erupts (Vault empty):</p>
-                    <div class="grid" style="margin-top: 1rem;">
-                        <div class="phase-box">
-                            <h4>❌ Conjurations</h4>
-                            <p>No bonus draws - chaotic magic prevents stable power generation</p>
-                        </div>
-                        <div class="phase-box">
-                            <h4>❌ Transfigurations</h4>
-                            <p>No transformations - The Exchange has collapsed</p>
-                        </div>
-                        <div class="phase-box">
-                            <h4>✅ Enchantments</h4>
-                            <p>Still work! They're permanent self-enhancements</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- END GAME TAB -->
-        <div id="endgame" class="tab-content">
+        <!-- WILD MAGIC TAB -->
+        <div id="wildmagic" class="tab-content">
             <div class="grid">
                 <div class="card wide-card">
                     <div class="card-icon">🌊</div>
                     <h3>Wild Magic Surge</h3>
                     
-                    <h4>Trigger</h4>
-                    <p>The instant The Vault empties</p>
+                    <h4>When It Happens</h4>
+                    <p>The instant <span class="highlight">The Vault empties</span>, Wild Magic erupts!</p>
+                    
+                    <div class="note" style="margin-top: 1rem;">
+                        <strong>Why the Initial Sacrifice matters:</strong> The component each player discarded at game start guarantees there will be sufficient Wild Magic for final preparations before the Ascension Trial.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🔀</div>
+                    <h3>Creating Wild Magic Surge</h3>
                     
                     <h4>Setup</h4>
-                    <p>Shuffle The Exchange + Used Components → Wild Magic Surge pile</p>
+                    <ol>
+                        <li>Shuffle <span class="highlight">The Exchange</span> together with <span class="highlight">Used Components</span></li>
+                        <li>This forms the <span class="highlight">Wild Magic Surge</span> pile</li>
+                        <li>Keep turn order as normal</li>
+                    </ol>
                     
-                    <h4>Modified Rules</h4>
+                    <div class="note" style="margin-top: 1rem;">
+                        There is no Exchange during this phase
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Modified Turn Structure</h3>
+                    
+                    <h4>Before Turn: Choose Spells to Cast</h4>
+                    <p>Place counters as normal, but benefits are limited (see below)</p>
+                    
+                    <h4>Collection Phase</h4>
+                    <p>Draw <span class="highlight">exactly 1 component</span> from Wild Magic Surge</p>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Ignore base acquisition options</li>
+                        <li>Ignore all Conjuration bonuses</li>
+                    </ul>
+                    
+                    <h4>Transform Phase</h4>
+                    <p><span class="highlight">No transformations</span> - The Exchange has collapsed</p>
+                    
+                    <h4>Learn Phase</h4>
+                    <p><span class="highlight">Unchanged</span> - use learning actions normally</p>
+                </div>
+
+                <div class="card wide-card">
+                    <div class="card-icon">⚠️</div>
+                    <h3>Why Cast Spells Lose Effectiveness</h3>
+                    <p>When Wild Magic erupts, the fundamental structure of magical reality destabilizes:</p>
                     <div class="grid" style="margin-top: 1rem;">
                         <div class="phase-box">
-                            <p><strong>Collection:</strong> Draw exactly 1 component (no bonuses)</p>
+                            <h4>❌ Conjurations</h4>
+                            <p><strong>No bonus draws</strong> - There are no stable elemental sources to draw from; all magic is chaotic and uncontrolled</p>
                         </div>
                         <div class="phase-box">
-                            <p><strong>Transform:</strong> No transformations possible</p>
+                            <h4>❌ Transfigurations</h4>
+                            <p><strong>No transformations</strong> - The Exchange has collapsed; there's nowhere to perform careful transformations</p>
                         </div>
                         <div class="phase-box">
-                            <p><strong>Learn:</strong> Unchanged - use your learning actions normally</p>
+                            <h4>✅ Enchantments</h4>
+                            <p><strong>Still work!</strong> - As permanent self-enhancements, Enchantments continue to boost your learning capacity and casting ability even amid chaos</p>
                         </div>
                     </div>
                     
                     <div class="note" style="margin-top: 1rem;">
-                        When Wild Magic Surge depletes → Proceed to End Game
+                        You can still cast spells during this phase (place counters on them if you wish), but only Enchantments provide their normal benefits. Conjurations and Transfigurations remain inert until the trial.
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-icon">🏆</div>
-                    <h3>The Ascension Trial</h3>
-                    <p><span class="accent-text">Recommended End Game</span></p>
+                    <div class="card-icon">🏁</div>
+                    <h3>Game End</h3>
                     
-                    <p style="margin-top: 1rem;">Strategic finale that rewards how you built your magical power</p>
+                    <p>When the <span class="highlight">Wild Magic Surge pile is depleted</span>, proceed immediately to your chosen end-game method:</p>
                     
-                    <h4>Process</h4>
-                    <ol style="list-style-position: inside; padding-left: 0;">
-                        <li style="margin: 0.5rem 0;">Calculate Power from each domain</li>
-                        <li style="margin: 0.5rem 0;">Secretly allocate Power to 6 Trials</li>
-                        <li style="margin: 0.5rem 0;">Reveal simultaneously</li>
-                        <li style="margin: 0.5rem 0;">Highest legal power wins each Trial</li>
-                    </ol>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">📊</div>
-                    <h3>Simple Evaluation</h3>
-                    <p><span class="accent-text">Casual/Quick Play</span></p>
-                    
-                    <p style="margin-top: 1rem;">Tally Recognition Points from all spells</p>
-                    
-                    <h4>Winner</h4>
-                    <p>Most Recognition Points</p>
-                    
-                    <h4>Tiebreakers</h4>
-                    <ol style="list-style-position: inside; padding-left: 0;">
-                        <li style="margin: 0.5rem 0;">Most spells</li>
-                        <li style="margin: 0.5rem 0;">Most components in largest spell</li>
-                    </ol>
-                    
-                    <div class="note" style="margin-top: 1rem;">
-                        See Tables tab for scoring values
+                    <div class="phase-box" style="margin-top: 1rem;">
+                        <h4>Option 1: Simple Scoring</h4>
+                        <p>Tally Recognition Points from all spells</p>
                     </div>
-                </div>
-
-                <div class="card wide-card">
-                    <div class="card-icon">⚗️</div>
-                    <h3>Power Calculation Formula</h3>
-                    <div class="formula">
-                        3-4 components: Power = Length<br>
-                        5-6 components: Power = Length × 1.5 (round normally)<br>
-                        7+ components: Power = Length × 2.0
+                    
+                    <div class="phase-box">
+                        <h4>Option 2: The Ascension Trial (Recommended)</h4>
+                        <p>Face six magical challenges to prove your mastery</p>
                     </div>
-                    <p style="margin-top: 1rem;">Examples:</p>
-                    <ul>
-                        <li>3-card spell = 3 power</li>
-                        <li>5-card spell = 8 power (5 × 1.5 = 7.5 → 8)</li>
-                        <li>7-card spell = 14 power</li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">🔥</div>
-                    <h3>Power Domains</h3>
-                    
-                    <ul>
-                        <li><span class="highlight">Elemental Power:</span> Combined Conjurations per element (4 separate domains)</li>
-                        <li><span class="highlight">Transformation Power:</span> All Transfiguration lengths combined</li>
-                        <li><span class="highlight">Enchantment Power:</span> All Enchantment sizes combined</li>
-                    </ul>
-                </div>
-
-                <div class="card">
-                    <div class="card-icon">✨</div>
-                    <h3>Wild Magic Power</h3>
-                    
-                    <p><span class="highlight">Bonus allocation flexibility</span></p>
-                    
-                    <h4>Sources</h4>
-                    <ul>
-                        <li>Each Perfect Transmutation: +1</li>
-                        <li>Each 4-component Enchantment: +1</li>
-                    </ul>
-                    
-                    <h4>Rules</h4>
-                    <ul>
-                        <li>Only add to trials you're already attempting</li>
-                        <li>Doesn't count as a domain source</li>
-                        <li>Affects total only (not tie-breakers)</li>
-                    </ul>
-                </div>
-
-                <div class="card wide-card">
-                    <div class="card-icon">🎯</div>
-                    <h3>The Six Trials</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Trial</th>
-                                <th>Requirements</th>
-                                <th>Proves</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Elemental Purity</td>
-                                <td>Exactly one elemental domain</td>
-                                <td>Single element mastery</td>
-                            </tr>
-                            <tr>
-                                <td>Elemental Harmony</td>
-                                <td>2+ different elemental domains</td>
-                                <td>Harmonizing elements</td>
-                            </tr>
-                            <tr>
-                                <td>Transformation</td>
-                                <td>Transformation domain only</td>
-                                <td>Transfiguration prowess</td>
-                            </tr>
-                            <tr>
-                                <td>Enchantment</td>
-                                <td>Enchantment domain only</td>
-                                <td>Lasting magic mastery</td>
-                            </tr>
-                            <tr>
-                                <td>Focused Power</td>
-                                <td>Exactly one domain (any type)</td>
-                                <td>Mastery through specialization</td>
-                            </tr>
-                            <tr>
-                                <td>Universal Power</td>
-                                <td>2+ different domains (any mix)</td>
-                                <td>Versatility to lead</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- TABLES TAB -->
-        <div id="tables" class="tab-content">
+        <!-- SIMPLE SCORING TAB -->
+        <div id="scoring" class="tab-content">
             <div class="grid">
                 <div class="card wide-card">
-                    <h3>Simple Evaluation Scoring</h3>
+                    <div class="card-icon">📊</div>
+                    <h3>Simple Evaluation</h3>
+                    <p><span class="accent-text">For Casual/Quick Play</span></p>
+                    
+                    <p style="margin-top: 1rem;">This is a faster, less competitive scoring method suitable for casual play or when you want to avoid the strategic depth of the Ascension Trial.</p>
+                    
+                    <h4 style="margin-top: 1.5rem;">How to Win</h4>
+                    <ol>
+                        <li>Tally <span class="highlight">Recognition Points</span> from all spells in your Spellbook</li>
+                        <li>Player with <span class="highlight">most Recognition Points wins</span></li>
+                    </ol>
+                    
+                    <h4>Tiebreakers (in order)</h4>
+                    <ol>
+                        <li>Most spells</li>
+                        <li>Most components in largest single spell</li>
+                    </ol>
+                </div>
+
+                <div class="card wide-card">
+                    <h3>Recognition Points by Spell Size</h3>
                     <table>
                         <thead>
                             <tr>
@@ -896,9 +843,194 @@
                     </table>
                 </div>
 
+                <div class="card">
+                    <div class="card-icon">📝</div>
+                    <h3>Scoring Example</h3>
+                    
+                    <h4>Your Spellbook</h4>
+                    <ul>
+                        <li>5-component Conjuration = <span class="highlight">9 points</span></li>
+                        <li>4-component Transfiguration = <span class="highlight">8 points</span></li>
+                        <li>3-component Enchantment = <span class="highlight">6 points</span></li>
+                        <li>6-component Perfect Transmutation = <span class="highlight">23 points</span></li>
+                    </ul>
+                    
+                    <div class="phase-box" style="margin-top: 1rem;">
+                        <h4>Total: 46 Recognition Points</h4>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💡</div>
+                    <h3>Quick Tips</h3>
+                    
+                    <ul>
+                        <li><span class="highlight">Perfect Transmutations</span> score the highest per component</li>
+                        <li><span class="highlight">4-component Enchantments</span> have a huge scoring spike (14 points)</li>
+                        <li>Longer spells score <span class="highlight">exponentially better</span> than multiple short ones</li>
+                        <li>A single 7-component spell often scores more than two 4-component spells</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASCENSION TRIALS TAB -->
+        <div id="trials" class="tab-content">
+            <div class="grid">
                 <div class="card wide-card">
-                    <h3>Recognition Points (2-4 Players)</h3>
+                    <div class="card-icon">🏆</div>
+                    <h3>The Ascension Trial</h3>
+                    <p><span class="accent-text">Recommended End Game Method</span></p>
+                    
+                    <p style="margin-top: 1rem; font-size: 1.1rem;">A strategic, interactive finale that rewards how you built your magical power. The wizard who demonstrates the greatest mastery across six magical challenges becomes THE Archmage.</p>
+                    
+                    <div style="text-align: center; margin: 2rem 0;">
+                        <a href="trials.html" style="
+                            display: inline-block;
+                            padding: 1.5rem 3rem;
+                            background: linear-gradient(135deg, var(--gold) 0%, var(--accent) 100%);
+                            color: var(--primary);
+                            text-decoration: none;
+                            font-family: 'Cinzel', serif;
+                            font-size: 1.3rem;
+                            font-weight: 700;
+                            letter-spacing: 0.1em;
+                            border-radius: 8px;
+                            box-shadow: 0 8px 32px rgba(246, 201, 74, 0.4);
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 40px rgba(246, 201, 74, 0.6)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(246, 201, 74, 0.4)'">
+                            LAUNCH ASCENSION TRIAL ⚡
+                        </a>
+                    </div>
+                    
+                    <div class="note">
+                        <strong>The trials.html app handles all calculations automatically</strong> - power domains, allocations, tie-breakers, and winner determination. Just enter your spells and make your strategic choices!
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">⚗️</div>
+                    <h3>Overview</h3>
+                    
+                    <h4>The Process</h4>
+                    <ol>
+                        <li>Calculate <span class="highlight">Power</span> from each domain based on your spells</li>
+                        <li>Secretly allocate Power to <span class="highlight">6 Trials</span></li>
+                        <li>Reveal simultaneously</li>
+                        <li>Highest legal power wins each Trial's Recognition Points</li>
+                    </ol>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🔥</div>
+                    <h3>Power Calculation</h3>
+                    
+                    <div class="formula">
+                        3-4 components: Power = Length<br>
+                        5-6 components: Power = Length × 1.5 (round normally)<br>
+                        7+ components: Power = Length × 2.0
+                    </div>
+                    
+                    <h4 style="margin-top: 1rem;">Examples</h4>
+                    <table style="margin-top: 0.5rem;">
+                        <tr><td>3 components</td><td>= 3 power</td></tr>
+                        <tr><td>5 components</td><td>= 8 power (5 × 1.5 = 7.5 → 8)</td></tr>
+                        <tr><td>7 components</td><td>= 14 power</td></tr>
+                    </table>
+                </div>
+
+                <div class="card wide-card">
+                    <div class="card-icon">💫</div>
+                    <h3>Power Domains</h3>
+                    <div class="grid" style="margin-top: 1rem;">
+                        <div class="phase-box">
+                            <h4>Elemental Power</h4>
+                            <p>Combined length of <span class="highlight">Conjurations</span> in each element</p>
+                            <p style="margin-top: 0.5rem; font-size: 0.95rem; color: var(--text-dim);">Four separate domains (Earth, Fire, Water, Air)</p>
+                        </div>
+                        <div class="phase-box">
+                            <h4>Transformation Power</h4>
+                            <p>Total length of all <span class="highlight">Transfiguration</span> spells</p>
+                            <p style="margin-top: 0.5rem; font-size: 0.95rem; color: var(--text-dim);">Perfect Transmutations count as Transfigurations</p>
+                        </div>
+                        <div class="phase-box">
+                            <h4>Enchantment Power</h4>
+                            <p>Total size of all <span class="highlight">Enchantments</span></p>
+                            <p style="margin-top: 0.5rem; font-size: 0.95rem; color: var(--text-dim);">Sum of all Enchantment component counts</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">✨</div>
+                    <h3>Wild Magic Power</h3>
+                    
+                    <p>Bonus allocation flexibility:</p>
+                    
+                    <h4>Sources</h4>
+                    <ul>
+                        <li>Each Perfect Transmutation: <span class="highlight">+1 wild magic</span></li>
+                        <li>Each 4-component Enchantment: <span class="highlight">+1 wild magic</span></li>
+                    </ul>
+                    
+                    <h4>Rules</h4>
+                    <ul>
+                        <li>Only add to trials you're already attempting (with ≥1 normal power)</li>
+                        <li>Doesn't count as a domain source</li>
+                        <li>Affects total only (not tie-breakers)</li>
+                    </ul>
+                </div>
+
+                <div class="card wide-card">
+                    <div class="card-icon">🎯</div>
+                    <h3>The Six Trials</h3>
                     <table>
+                        <thead>
+                            <tr>
+                                <th>Trial</th>
+                                <th>Requirements</th>
+                                <th>What Winning Proves</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Elemental Purity</strong></td>
+                                <td>Exactly one elemental domain</td>
+                                <td>Unmatched mastery of a single element</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Elemental Harmony</strong></td>
+                                <td>2+ different elemental domains</td>
+                                <td>Ability to harmonize multiple elements</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Transformation</strong></td>
+                                <td>Transformation domain only</td>
+                                <td>Superior transformation mastery</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Enchantment</strong></td>
+                                <td>Enchantment domain only</td>
+                                <td>Mastery of enduring enchantments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focused Power</strong></td>
+                                <td>Exactly one domain (any type)</td>
+                                <td>True mastery through specialization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Universal Power</strong></td>
+                                <td>2+ different domains (any mix)</td>
+                                <td>Versatility needed to lead all wizards</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card wide-card">
+                    <h3>Recognition Points by Player Count</h3>
+                    
+                    <table style="margin-bottom: 1.5rem;">
                         <thead>
                             <tr>
                                 <th>Trial</th>
@@ -922,76 +1054,24 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
 
-                <div class="card wide-card">
-                    <h3>Recognition Points (5-7 Players)</h3>
-                    <p style="margin-bottom: 1rem;"><span class="accent-text">Includes Complete Mastery Trial (all 3 domain types)</span></p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Trial</th>
-                                <th>5 Players</th>
-                                <th>6 Players (1st/2nd)</th>
-                                <th>7 Players (1st/2nd)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>Elemental Purity</td><td>8</td><td>7 / 3</td><td>7 / 4</td></tr>
-                            <tr><td>Elemental Harmony</td><td>6</td><td>6 / 2</td><td>6 / 3</td></tr>
-                            <tr><td>Transformation</td><td>9</td><td>8 / 3</td><td>8 / 4</td></tr>
-                            <tr><td>Enchantment</td><td>6</td><td>6 / 2</td><td>6 / 3</td></tr>
-                            <tr><td>Focused Power</td><td>7</td><td>7 / 3</td><td>7 / 4</td></tr>
-                            <tr><td>Universal Power</td><td>5</td><td>5 / 2</td><td>5 / 3</td></tr>
-                            <tr><td>Complete Mastery</td><td>6</td><td>6 / 2</td><td>6 / 3</td></tr>
-                            <tr style="background: rgba(246, 201, 74, 0.1);">
-                                <td><strong>Total Pool</strong></td>
-                                <td><strong>47</strong></td>
-                                <td><strong>45 / 17</strong></td>
-                                <td><strong>45 / 24</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="note">
+                        <strong>5-7 Players:</strong> Add a 7th trial (<strong>Complete Mastery</strong> - requires all 3 domain types). Both 1st and 2nd place score in 6-7 player games. See the trials.html app for complete scoring tables.
+                    </div>
                 </div>
 
                 <div class="card">
-                    <h3>Tie-Breakers (in order)</h3>
-                    <ol style="list-style-position: inside; padding-left: 0;">
-                        <li style="margin: 0.8rem 0;">
-                            <span class="highlight">Utilization:</span> Power used ÷ Total capacity of domains used
-                        </li>
-                        <li style="margin: 0.8rem 0;">
-                            <span class="highlight">Focus:</span> Power on trial ÷ Total power across all domains
-                        </li>
-                        <li style="margin: 0.8rem 0;">
-                            <span class="highlight">Breadth:</span> More distinct sources (Harmony/Universal only)
-                        </li>
-                        <li style="margin: 0.8rem 0;">
-                            <span class="highlight">Shared Recognition:</span> Both players get full points
-                        </li>
+                    <div class="card-icon">⚖️</div>
+                    <h3>Tie-Breakers</h3>
+                    
+                    <p>When trials tie, resolve in order:</p>
+                    
+                    <ol style="margin-top: 1rem;">
+                        <li><span class="highlight">Utilization:</span> Power used ÷ Total capacity of domains used</li>
+                        <li><span class="highlight">Focus:</span> Power on this trial ÷ Total power across all domains</li>
+                        <li><span class="highlight">Breadth:</span> More distinct sources (Harmony/Universal only)</li>
+                        <li><span class="highlight">Shared Recognition:</span> Both players get full points</li>
                     </ol>
-                </div>
-
-                <div class="card">
-                    <h3>Quick Power Examples</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Spell Size</th>
-                                <th>Power</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>3 components</td><td>3</td></tr>
-                            <tr><td>4 components</td><td>4</td></tr>
-                            <tr><td>5 components</td><td>8</td></tr>
-                            <tr><td>6 components</td><td>9</td></tr>
-                            <tr><td>7 components</td><td>14</td></tr>
-                            <tr><td>8 components</td><td>16</td></tr>
-                            <tr><td>9 components</td><td>18</td></tr>
-                            <tr><td>10 components</td><td>20</td></tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
