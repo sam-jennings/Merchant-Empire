@@ -1,620 +1,562 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archmage Ascension - The Ascension Trial</title>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Shared magical academy theme -->
-    <link rel="stylesheet" href="archmage-theme.css">
-    
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Load the configuration file -->
-    <script src="config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archmage Ascension - The Ascension Trial</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Archmage theme (dark-only) -->
+  <link rel="stylesheet" href="archmage-theme.css" />
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Load configuration (colors/theme optional; app will not rely on it) -->
+  <script src="config.js"></script>
+
+  <style>
+    /* Small, page-specific helpers (kept minimal; main theme is in archmage-theme.css) */
+    .app-shell { padding-top: 1rem; padding-bottom: 2rem; }
+
+    .stack { display: flex; flex-direction: column; gap: 1rem; }
+
+    .row { display: flex; gap: 1rem; align-items: center; }
+    .row.wrap { flex-wrap: wrap; }
+    .row.between { justify-content: space-between; }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field label { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--text-dim); letter-spacing: 0.06em; }
+
+    .input-row { display: flex; gap: 0.75rem; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(183, 148, 246, 0.25);
+      background: rgba(26, 11, 46, 0.35);
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid rgba(183, 148, 246, 0.25);
+      background: rgba(26, 11, 46, 0.35);
+      color: var(--text);
+    }
+    .icon-btn:hover { border-color: rgba(246, 201, 74, 0.6); transform: translateY(-1px); }
+
+    .spell-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    .spell-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 520px) {
+      .input-row { flex-direction: column; }
+      .spell-grid { grid-template-columns: 1fr; }
+    }
+
+    .divider { height: 1px; background: rgba(183, 148, 246, 0.18); margin: 1rem 0; }
+
+    .muted { color: var(--text-dim); }
+    .small { font-size: 0.95rem; }
+
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-wrap table { min-width: 560px; }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useMemo, useEffect } = React;
-        const config = GameConfig;
+  <script type="text/babel">
+    const { useEffect, useMemo, useState } = React;
+    const config = (typeof GameConfig !== 'undefined') ? GameConfig : {};
 
-        // Icons
-        const Calculator = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-        );
-        const Plus = ({ className = "w-4 h-4" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-        );
-        const Trash = ({ className = "w-5 h-5" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-        );
-        const Users = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-        );
-        const Lock = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-        );
-        const Unlock = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-            </svg>
-        );
-        const Trophy = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
-        );
-        const Crown = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l7 7 7-7M5 21l7-7 7 7M12 3v18" />
-            </svg>
-        );
-        const Zap = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-        );
-        const Sparkles = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-            </svg>
-        );
-        const AlertTriangle = ({ className = "w-5 h-5" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-        );
-        const Moon = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-        );
-        const Sun = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-        );
+    // -------------------------------------------------------------------------
+    // Safe config helpers (so config.colors / theme blocks can be deleted)
+    // -------------------------------------------------------------------------
+    const safeArray = (v) => Array.isArray(v) ? v : [];
+    const safeObj = (v) => (v && typeof v === 'object') ? v : {};
 
-        // Icon mapping
-        const IconMap = { Users, Trophy, Crown, Zap, Sparkles };
+    const ELEMENTS = safeArray(config.elements);
+    const DOMAINS = safeObj(config.domains);
+    const SPELL_TYPES = safeArray(config.spellTypes);
 
-        // Build lookup objects from config
-        const ELEMENT_SYMBOLS = Object.fromEntries(
-          config.elements.map(e => [e.name, e.symbol])
-        );
-        
-        const DOMAIN_NAMES = Object.fromEntries(
-          Object.entries(config.domains).map(([key, val]) => [key, val.name])
-        );
+    const calcPower = (size) => {
+      if (typeof config.calculatePower === 'function') return config.calculatePower(size);
+      // Fallback: matches the current config.js behaviour
+      if (size <= 4) return size * 1;
+      if (size <= 6) return Math.round(size * 1.5);
+      return size * 2;
+    };
 
-        // Dark Mode Toggle Component
-        function DarkModeToggle({ darkMode, setDarkMode }) {
-          return (
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`fixed top-4 right-4 p-3 rounded-full shadow-lg transition-all z-50 ${
-                darkMode 
-                  ? 'bg-gray-700 text-yellow-300 hover:bg-gray-600' 
-                  : 'bg-white text-gray-900 hover:bg-gray-100'
-              }`}
-              title={darkMode ? config.text.lightMode : config.text.darkMode}
-            >
-              {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-            </button>
-          );
+    const getPowerBreakdown = (size) => {
+      if (typeof config.getPowerBreakdown === 'function') return config.getPowerBreakdown(size, calcPower);
+      const power = calcPower(size);
+      if (size <= 4) return `${size} × 1 = ${power}`;
+      if (size <= 6) return `${size} × 1.5 = ${power}`;
+      return `${size} × 2 = ${power}`;
+    };
+
+    const TEXT = {
+      gameName: config.gameName || 'Archmage Ascension',
+      gameSubtitle: config.gameSubtitle || 'The Ascension Trial',
+      pointsName: config.pointsName || 'Recognition Points',
+      pointsAbbreviation: config.pointsAbbreviation || 'RP',
+
+      playerNoun: (config.text && config.text.playerNoun) || 'Wizard',
+      playerNounPlural: (config.text && config.text.playerNounPlural) || 'Wizards',
+      addPlayerButton: (config.text && config.text.addPlayerButton) || 'Add Wizard',
+      playerInputPlaceholder: (config.text && config.text.playerInputPlaceholder) || 'Wizard name',
+      startGameButton: (config.text && config.text.startGameButton) || 'Start Ascension Trial',
+      startGameRequirement: (config.text && config.text.startGameRequirement) || 'All wizards must enter at least one power point',
+
+      calculatorButton: (config.text && config.text.calculatorButton) || 'Spell Calculator',
+      manualEntryActive: (config.text && config.text.manualEntryActive) || '✓ Using Manual Entry',
+      switchToManual: (config.text && config.text.switchToManual) || 'Switch to Manual Entry',
+
+      setupHeader: (config.text && config.text.setupHeader) || 'Game Setup',
+      setupSubheader: (config.text && config.text.setupSubheader) || 'Calculate or Enter Domain Power',
+      addPlayersHeader: (config.text && config.text.addPlayersHeader) || 'Add Wizards',
+
+      removeButton: (config.text && config.text.removeButton) || 'Remove',
+    };
+
+    const ELEMENT_SYMBOLS = Object.fromEntries(ELEMENTS.map(e => [e.name, e.symbol]));
+    const DOMAIN_NAMES = Object.fromEntries(Object.entries(DOMAINS).map(([k, v]) => [k, v.name]));
+
+    // -------------------------------------------------------------------------
+    // Icons (inline SVGs)
+    // -------------------------------------------------------------------------
+    const CalculatorIcon = ({ size = 20 }) => (
+      <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    );
+
+    const PlusIcon = ({ size = 18 }) => (
+      <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+      </svg>
+    );
+
+    const TrashIcon = ({ size = 18 }) => (
+      <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+    );
+
+    // -------------------------------------------------------------------------
+    // Spell Calculator
+    // -------------------------------------------------------------------------
+    function SpellCalculator({ onDomainsCalculated }) {
+      const [spells, setSpells] = useState([]);
+      const [open, setOpen] = useState(true);
+
+      const addSpell = (typeId) => {
+        const defaultElementName = ELEMENTS[0]?.name || 'Earth';
+        setSpells(prev => [
+          ...prev,
+          { id: Date.now() + Math.random(), type: typeId, element: defaultElementName, size: 3 }
+        ]);
+      };
+
+      const updateSpell = (id, field, value) => {
+        setSpells(prev => prev.map(s => (s.id === id ? { ...s, [field]: value } : s)));
+      };
+
+      const removeSpell = (id) => setSpells(prev => prev.filter(s => s.id !== id));
+
+      const calculatedDomains = useMemo(() => {
+        const domains = {};
+        Object.keys(DOMAINS).forEach(k => (domains[k] = 0));
+
+        for (const spell of spells) {
+          const st = SPELL_TYPES.find(x => x.id === spell.type);
+          if (st && typeof st.contributeToDomains === 'function') {
+            st.contributeToDomains(spell, domains, calcPower);
+          }
         }
+        return domains;
+      }, [spells]);
 
-        // Spell Calculator Component (simplified - only showing changes for dark mode)
-        function SpellCalculator({ wizardId, onDomainsCalculated, darkMode }) {
-          const [spells, setSpells] = useState([]);
-          const [showCalculator, setShowCalculator] = useState(true);
-          const colors = darkMode ? config.colors.dark : config.colors.light;
+      useEffect(() => {
+        onDomainsCalculated(calculatedDomains);
+      }, [calculatedDomains]);
 
-          const addSpell = (type) => {
-            setSpells([...spells, { id: Date.now(), type: type, element: config.elements[0].name, size: 3 }]);
-          };
+      const getSpellWarning = (spell) => {
+        const st = SPELL_TYPES.find(x => x.id === spell.type);
+        if (!st) return null;
+        if (typeof st.warnUnder === 'number' && spell.size < st.warnUnder) {
+          return `${st.name} needs at least ${st.warnUnder} components.`;
+        }
+        if (typeof st.warnOver === 'number' && spell.size > st.warnOver) {
+          return `${st.name} typically doesn't exceed ${st.warnOver} components.`;
+        }
+        return null;
+      };
 
-          const updateSpell = (id, field, value) => {
-            setSpells(spells.map(s => s.id === id ? { ...s, [field]: value } : s));
-          };
+      const getContributionText = (spell) => {
+        const st = SPELL_TYPES.find(x => x.id === spell.type);
+        if (!st || typeof st.contributeToDomains !== 'function') return '';
+        const temp = {};
+        Object.keys(DOMAINS).forEach(k => (temp[k] = 0));
+        st.contributeToDomains(spell, temp, calcPower);
+        const parts = [];
+        for (const [k, v] of Object.entries(temp)) {
+          if (v > 0) parts.push(`${DOMAIN_NAMES[k] || k}: +${v}`);
+        }
+        return parts.join(' • ');
+      };
 
-          const removeSpell = (id) => {
-            setSpells(spells.filter(s => s.id !== id));
-          };
+      return (
+        <div className="stack">
+          <button className="btn-primary" onClick={() => setOpen(o => !o)}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem' }}>
+              <CalculatorIcon />
+              {open ? 'Hide' : 'Show'} {TEXT.calculatorButton}
+            </span>
+          </button>
 
-          const getSpellWarning = (spell) => {
-            const spellType = config.spellTypes.find(st => st.id === spell.type);
-            if (!spellType) return null;
-            
-            if (spell.size < spellType.warnUnder) {
-              return `⚠️ ${spellType.name}s need at least ${spellType.warnUnder} components`;
-            }
-            if (spell.size > spellType.warnOver) {
-              return `⚠️ ${spellType.name}s typically don't exceed ${spellType.warnOver} components`;
-            }
-            return null;
-          };
-
-          const calculatedDomains = useMemo(() => {
-            const domains = {};
-            Object.keys(config.domains).forEach(key => domains[key] = 0);
-            
-            spells.forEach(spell => {
-              const spellType = config.spellTypes.find(st => st.id === spell.type);
-              if (spellType && spellType.contributeToDomains) {
-                spellType.contributeToDomains(spell, domains, config.calculatePower);
-              }
-            });
-            
-            return domains;
-          }, [spells]);
-
-          useEffect(() => {
-            onDomainsCalculated(calculatedDomains);
-          }, [calculatedDomains]);
-
-          const getSpellTypeLabel = (type) => {
-            const spellType = config.spellTypes.find(st => st.id === type);
-            return spellType ? `${spellType.emoji} ${spellType.name}` : type;
-          };
-
-          const getSpellContribution = (spell) => {
-            const spellType = config.spellTypes.find(st => st.id === spell.type);
-            if (!spellType) return '';
-            
-            const tempDomains = {};
-            Object.keys(config.domains).forEach(key => tempDomains[key] = 0);
-            spellType.contributeToDomains(spell, tempDomains, config.calculatePower);
-            
-            const contributions = [];
-            Object.entries(tempDomains).forEach(([key, value]) => {
-              if (value > 0) {
-                contributions.push(`${DOMAIN_NAMES[key]}: +${value} ${key === 'wilds' ? 'wild' : 'power'}`);
-              }
-            });
-            
-            return contributions.join(', ');
-          };
-
-          return (
-            <div className="space-y-4">
-              <button 
-                onClick={() => setShowCalculator(!showCalculator)} 
-                className={`flex items-center gap-2 px-4 py-2 bg-${colors.primary}-600 text-white rounded hover:bg-${colors.primary}-700 transition`}
-              >
-                <Calculator className="w-5 h-5" />
-                {showCalculator ? 'Hide' : 'Show'} {config.text.calculatorButton}
-              </button>
-
-              {showCalculator && (
-                <div className={`bg-${colors.primary}-${darkMode ? '900' : '50'} rounded-lg p-6 border-2 border-${colors.primary}-${darkMode ? '700' : '300'} space-y-4`}>
-                  <div>
-                    <h4 className={`text-lg font-bold text-${colors.headerText} mb-2`}>Enter Your Spells</h4>
-                    <p className={`text-sm text-${colors.subheaderText} mb-3`}>Formula: {config.powerFormulaDescription}</p>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {config.spellTypes.map(spellType => (
-                      <button 
-                        key={spellType.id}
-                        onClick={() => addSpell(spellType.id)} 
-                        className={`px-3 py-2 bg-${colors.secondary}-600 text-white text-sm rounded hover:bg-${colors.secondary}-700 transition flex items-center gap-2`}
-                      >
-                        <Plus /> {spellType.name}
-                      </button>
-                    ))}
-                  </div>
-
-                  {spells.length === 0 ? (
-                    <div className={`text-${colors.mutedText} italic text-center py-6 bg-${colors.cardBg} rounded border border-${colors.border}`}>
-                      No spells added yet. Click the buttons above.
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {spells.map(spell => {
-                        const warning = getSpellWarning(spell);
-                        return (
-                          <div key={spell.id} className={`bg-${colors.cardBg} rounded p-4 border-2 space-y-3 ${warning ? 'border-yellow-400' : `border-${colors.border}`}`}>
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className={`font-semibold text-${colors.bodyText} text-lg`}>{getSpellTypeLabel(spell.type)}</div>
-                                <div className={`text-xs text-${colors.primary}-${darkMode ? '400' : '600'} font-medium mt-1`}>
-                                  {config.getPowerBreakdown(spell.size, config.calculatePower)}
-                                </div>
-                              </div>
-                              <button onClick={() => removeSpell(spell.id)} className="text-red-600 hover:text-red-800 transition">
-                                <Trash />
-                              </button>
-                            </div>
-                            
-                            {warning && (
-                              <div className="flex items-center gap-2 text-xs text-yellow-700 bg-yellow-50 p-2 rounded border border-yellow-300">
-                                <AlertTriangle className="w-4 h-4" />
-                                <span>{warning}</span>
-                              </div>
-                            )}
-                            
-                            <div className="grid grid-cols-2 gap-3">
-                              {config.spellTypes.find(st => st.id === spell.type)?.requiresElement && (
-                                <div>
-                                  <label className={`block text-sm font-medium text-${colors.bodyText} mb-1`}>Element:</label>
-                                  <select 
-                                    value={spell.element} 
-                                    onChange={(e) => updateSpell(spell.id, 'element', e.target.value)} 
-                                    className={`w-full px-3 py-2 border border-${colors.border} rounded bg-${colors.cardBg} text-${colors.bodyText}`}
-                                  >
-                                    {config.elements.map(element => (
-                                      <option key={element.id} value={element.name}>
-                                        {element.symbol} {element.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                              )}
-                              <div>
-                                <label className={`block text-sm font-medium text-${colors.bodyText} mb-1`}>Size:</label>
-                                <input 
-                                  type="number" 
-                                  value={spell.size} 
-                                  onChange={(e) => updateSpell(spell.id, 'size', parseInt(e.target.value) || 0)} 
-                                  className={`w-full px-3 py-2 border border-${colors.border} rounded bg-${colors.cardBg} text-${colors.bodyText}`}
-                                />
-                              </div>
-                            </div>
-                            <div className={`text-xs text-${colors.mutedText} pt-2 border-t border-${colors.border} bg-${darkMode ? 'gray-900' : 'gray-50'} p-2 rounded`}>
-                              <strong>Contributes:</strong> <span className="ml-2">{getSpellContribution(spell)}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  <div className={`mt-6 bg-gradient-to-br from-${colors.cardBg} to-${colors.primary}-${darkMode ? '800' : '50'} rounded-lg p-5 border-2 border-${colors.primary}-${darkMode ? '600' : '400'} shadow-md`}>
-                    <h5 className={`font-bold text-${colors.headerText} mb-4 text-center text-lg border-b border-${colors.primary}-${darkMode ? '600' : '300'} pb-2`}>
-                      Calculated Total Power
-                    </h5>
-                    <div className="grid grid-cols-2 gap-3">
-                      {Object.entries(calculatedDomains).map(([key, value]) => (
-                        <div key={key} className={`flex justify-between p-2 rounded border ${key === 'wilds' ? 'bg-amber-100 border-amber-400 col-span-2 border-2' : `bg-${colors.primary}-${darkMode ? '800' : '50'} border-${colors.primary}-${darkMode ? '600' : '200'}`}`}>
-                          <span className={`font-medium ${key === 'wilds' ? 'text-amber-900 font-bold' : `text-${colors.bodyText}`}`}>
-                            {DOMAIN_NAMES[key]}:
-                          </span>
-                          <span className={`font-bold text-lg ${key === 'wilds' ? 'text-amber-900 text-xl' : `text-${colors.headerText}`}`}>
-                            {value}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          {open && (
+            <div className="card">
+              <div className="stack">
+                <div>
+                  <h4>Enter Your Spells</h4>
+                  <p className="muted small">
+                    Formula: {config.powerFormulaDescription || '3-4 ×1, 5-6 ×1.5, 7+ ×2'}
+                  </p>
                 </div>
-              )}
-            </div>
-          );
-        }
 
-        // Main App Component (shortened to show dark mode integration)
-        function ArchmageAscensionApp() {
-          const [gameState, setGameState] = useState('setup');
-          const [wizards, setWizards] = useState([]);
-          const [newWizardName, setNewWizardName] = useState('');
-          const [currentWizardId, setCurrentWizardId] = useState(null);
-          const [darkMode, setDarkMode] = useState(() => {
-            const saved = localStorage.getItem('darkMode');
-            return saved ? JSON.parse(saved) : false;
-          });
-
-          useEffect(() => {
-            localStorage.setItem('darkMode', JSON.stringify(darkMode));
-          }, [darkMode]);
-
-          const colors = darkMode ? config.colors.dark : config.colors.light;
-
-          const addWizard = () => {
-            if (newWizardName.trim()) {
-              const newWizard = {
-                id: Date.now(),
-                name: newWizardName.trim(),
-                domains: Object.fromEntries(Object.keys(config.domains).map(k => [k, 0])),
-                allocations: {},
-                locked: false
-              };
-              setWizards([newWizard, ...wizards]);
-              setNewWizardName('');
-            }
-          };
-
-          const removeWizard = (wizardId) => {
-            setWizards(wizards.filter(w => w.id !== wizardId));
-            if (currentWizardId === wizardId) setCurrentWizardId(null);
-          };
-
-          const updateWizardDomains = (wizardId, domains) => {
-            setWizards(wizards.map(w => w.id === wizardId ? { ...w, domains } : w));
-          };
-
-          const startVoting = () => {
-            if (wizards.length >= 2 && wizards.every(w => 
-              Object.values(w.domains).some(v => v > 0)
-            )) {
-              setGameState('voting');
-              setCurrentWizardId(wizards[0].id);
-            }
-          };
-
-          const allWizardsLocked = useMemo(() => 
-            wizards.length > 0 && wizards.every(w => w.locked),
-            [wizards]
-          );
-
-          const showResults = () => {
-            if (allWizardsLocked) {
-              setGameState('results');
-            }
-          };
-
-          return (
-            <div className={`min-h-screen bg-gradient-to-br ${colors.background} p-8 transition-colors duration-300`}>
-              <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
-              
-              <div className="max-w-7xl mx-auto">
-                <header className="text-center mb-8">
-                  <h1 className={`text-5xl font-bold text-${colors.headerText} mb-2 transition-colors`}>
-                    {config.gameName}
-                  </h1>
-                  <h2 className={`text-2xl text-${colors.subheaderText} transition-colors`}>
-                    {config.gameSubtitle}
-                  </h2>
-                </header>
-
-                {gameState === 'setup' && (
-                  <SetupPhase 
-                    wizards={wizards}
-                    newWizardName={newWizardName}
-                    setNewWizardName={setNewWizardName}
-                    addWizard={addWizard}
-                    removeWizard={removeWizard}
-                    updateWizardDomains={updateWizardDomains}
-                    startVoting={startVoting}
-                    darkMode={darkMode}
-                  />
-                )}
-
-                {gameState === 'voting' && (
-                  <VotingPhase 
-                    wizards={wizards}
-                    setWizards={setWizards}
-                    currentWizardId={currentWizardId}
-                    setCurrentWizardId={setCurrentWizardId}
-                    allWizardsLocked={allWizardsLocked}
-                    showResults={showResults}
-                    darkMode={darkMode}
-                  />
-                )}
-
-                {gameState === 'results' && (
-                  <ResultsPhase wizards={wizards} darkMode={darkMode} />
-                )}
-              </div>
-            </div>
-          );
-        }
-
-        // Continue with Setup, Voting, Results phases with darkMode prop...
-        // (Due to length, I'll show the key pattern - all components receive darkMode and use colors = darkMode ? config.colors.dark : config.colors.light)
-
-        // Setup Phase Component
-        function SetupPhase({ wizards, newWizardName, setNewWizardName, addWizard, removeWizard, updateWizardDomains, startVoting, darkMode }) {
-          const colors = darkMode ? config.colors.dark : config.colors.light;
-          const canStart = wizards.length >= 2 && wizards.every(w => 
-            Object.values(w.domains).some(v => v > 0)
-          );
-
-          return (
-            <div className={`bg-${colors.cardBg} rounded-lg shadow-xl p-8 transition-colors`}>
-              <h3 className={`text-2xl font-bold text-${colors.headerText} mb-6`}>
-                {config.text.setupHeader}
-              </h3>
-              
-              <div className="mb-8">
-                <h4 className={`text-lg font-semibold text-${colors.subheaderText} mb-4`}>
-                  {config.text.addPlayersHeader}
-                </h4>
-                <div className="flex gap-4 mb-4">
-                  <input
-                    type="text"
-                    value={newWizardName}
-                    onChange={(e) => setNewWizardName(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addWizard()}
-                    placeholder={config.text.playerInputPlaceholder}
-                    className={`flex-1 px-4 py-2 border-2 border-${colors.primary}-${darkMode ? '600' : '300'} rounded-lg focus:outline-none focus:border-${colors.primary}-500 bg-${colors.cardBg} text-${colors.bodyText}`}
-                  />
-                  <button
-                    onClick={addWizard}
-                    className={`px-6 py-2 bg-${colors.primary}-600 text-white rounded-lg hover:bg-${colors.primary}-700 transition-colors`}
-                  >
-                    {config.text.addPlayerButton}
-                  </button>
-                </div>
-              </div>
-
-              {wizards.length > 0 && (
-                <div className="space-y-6">
-                  <h4 className={`text-lg font-semibold text-${colors.subheaderText}`}>
-                    {config.text.setupSubheader}
-                  </h4>
-                  {wizards.map(wizard => (
-                    <WizardDomainSetup
-                      key={wizard.id}
-                      wizard={wizard}
-                      updateWizardDomains={updateWizardDomains}
-                      removeWizard={removeWizard}
-                      darkMode={darkMode}
-                    />
+                <div className="spell-actions">
+                  {SPELL_TYPES.map(st => (
+                    <button key={st.id} className="btn-secondary" onClick={() => addSpell(st.id)}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <PlusIcon />
+                        {st.emoji ? `${st.emoji} ` : ''}{st.name}
+                      </span>
+                    </button>
                   ))}
                 </div>
-              )}
 
-              {wizards.length >= 2 && (
-                <button
-                  onClick={startVoting}
-                  disabled={!canStart}
-                  className={`mt-8 w-full py-4 rounded-lg text-white text-xl font-bold transition-colors ${
-                    canStart 
-                      ? `bg-${colors.success}-600 hover:bg-${colors.success}-700 cursor-pointer` 
-                      : 'bg-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  {canStart ? config.text.startGameButton : config.text.startGameRequirement}
-                </button>
-              )}
-            </div>
-          );
-        }
+                {spells.length === 0 ? (
+                  <div className="info-box">
+                    <p className="muted">No spells added yet. Use the buttons above.</p>
+                  </div>
+                ) : (
+                  <div className="stack">
+                    {spells.map(spell => {
+                      const st = SPELL_TYPES.find(x => x.id === spell.type);
+                      const needsElement = !!st?.requiresElement;
+                      const warning = getSpellWarning(spell);
+                      return (
+                        <div key={spell.id} className="spell-card">
+                          <div className="row between wrap">
+                            <div>
+                              <h5 style={{ marginBottom: '0.25rem' }}>{st?.emoji ? `${st.emoji} ` : ''}{st?.name || spell.type}</h5>
+                              <div className="pill" title="Power breakdown">
+                                {getPowerBreakdown(spell.size)}
+                              </div>
+                            </div>
+                            <button className="icon-btn" onClick={() => removeSpell(spell.id)} title="Remove spell">
+                              <TrashIcon />
+                            </button>
+                          </div>
 
-        // Wizard Domain Setup Component
-        function WizardDomainSetup({ wizard, updateWizardDomains, removeWizard, darkMode }) {
-          const colors = darkMode ? config.colors.dark : config.colors.light;
-          const [useManualOverride, setUseManualOverride] = useState(false);
-          const [manualDomains, setManualDomains] = useState(wizard.domains);
+                          {warning && (
+                            <div className="warning-box" style={{ marginTop: '0.75rem' }}>
+                              <strong>Warning:</strong> {warning}
+                            </div>
+                          )}
 
-          const handleDomainsCalculated = (calculatedDomains) => {
-            if (!useManualOverride) {
-              updateWizardDomains(wizard.id, calculatedDomains);
-            }
-          };
+                          <div className="spell-grid" style={{ marginTop: '0.75rem' }}>
+                            {needsElement && (
+                              <div className="field">
+                                <label>Element</label>
+                                <select value={spell.element} onChange={(e) => updateSpell(spell.id, 'element', e.target.value)}>
+                                  {ELEMENTS.map(el => (
+                                    <option key={el.id} value={el.name}>{(el.symbol || '')} {el.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                            <div className="field">
+                              <label>Size</label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={spell.size}
+                                onChange={(e) => updateSpell(spell.id, 'size', Math.max(0, parseInt(e.target.value || '0', 10)))}
+                              />
+                            </div>
+                          </div>
 
-          const handleManualDomainChange = (domain, value) => {
-            const newDomains = { ...manualDomains, [domain]: parseInt(value) || 0 };
-            setManualDomains(newDomains);
-            if (useManualOverride) {
-              updateWizardDomains(wizard.id, newDomains);
-            }
-          };
+                          <div className="divider" />
+                          <p className="muted small"><strong>Contributes:</strong> {getContributionText(spell) || '—'}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-          const toggleManualOverride = () => {
-            const newUseManual = !useManualOverride;
-            setUseManualOverride(newUseManual);
-            if (newUseManual) {
-              updateWizardDomains(wizard.id, manualDomains);
-            }
-          };
-
-          const totalPower = Object.values(wizard.domains).reduce((sum, v) => sum + v, 0);
-
-          return (
-            <div className={`bg-${colors.primary}-${darkMode ? '900' : '50'} rounded-lg p-6 border-2 border-${colors.primary}-${darkMode ? '700' : '200'}`}>
-              <div className="flex justify-between items-center mb-4">
-                <h5 className={`text-xl font-bold text-${colors.headerText}`}>{wizard.name}</h5>
-                <div className="flex items-center gap-4">
-                  <span className={`text-sm font-semibold text-${colors.subheaderText}`}>
-                    Total Power: {totalPower}
-                  </span>
-                  <button
-                    onClick={() => removeWizard(wizard.id)}
-                    className={`px-3 py-1 bg-${colors.danger}-500 text-white text-sm rounded hover:bg-${colors.danger}-600`}
-                  >
-                    {config.text.removeButton}
-                  </button>
-                </div>
-              </div>
-
-              {!useManualOverride && (
-                <SpellCalculator
-                  wizardId={wizard.id}
-                  onDomainsCalculated={handleDomainsCalculated}
-                  darkMode={darkMode}
-                />
-              )}
-
-              <div className="mt-6">
-                <button
-                  onClick={toggleManualOverride}
-                  className={`w-full px-4 py-2 rounded transition ${
-                    useManualOverride 
-                      ? `bg-${colors.secondary}-600 text-white hover:bg-${colors.secondary}-700` 
-                      : `bg-${darkMode ? 'gray-700' : 'gray-200'} text-${colors.bodyText} hover:bg-${darkMode ? 'gray-600' : 'gray-300'}`
-                  }`}
-                >
-                  {useManualOverride ? config.text.manualEntryActive : config.text.switchToManual}
-                </button>
-              </div>
-
-              {useManualOverride && (
-                <div className={`mt-4 bg-${colors.secondary}-${darkMode ? '900' : '50'} rounded-lg p-4 border-2 border-${colors.secondary}-${darkMode ? '700' : '300'}`}>
-                  <h5 className={`font-semibold text-${colors.headerText} mb-3`}>
-                    Manual Power Entry:
-                  </h5>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {Object.entries(DOMAIN_NAMES).map(([domainKey, domainName]) => (
-                      <div key={domainKey}>
-                        <label className={`block text-sm font-medium text-${colors.bodyText} mb-1`}>
-                          {domainName}
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          value={manualDomains[domainKey]}
-                          onChange={(e) => handleManualDomainChange(domainKey, e.target.value)}
-                          className={`w-full px-3 py-2 border-2 border-${colors.secondary}-${darkMode ? '600' : '300'} rounded focus:outline-none focus:border-${colors.secondary}-500 bg-${colors.cardBg} text-${colors.bodyText}`}
-                        />
+                <div className="power-summary">
+                  <h4 className="text-center" style={{ marginBottom: '1rem' }}>Calculated Total Power</h4>
+                  <div className="domain-grid">
+                    {Object.entries(calculatedDomains).map(([k, v]) => (
+                      <div key={k} className="domain-item">
+                        <div className="row between">
+                          <span className="muted small">{DOMAIN_NAMES[k] || k}</span>
+                          <span className="highlight">{v}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
-
-              <div className={`mt-4 bg-${colors.cardBg} rounded-lg p-4 border border-${colors.border}`}>
-                <h5 className={`font-semibold text-${colors.mutedText} mb-3 text-sm`}>Current Power for Trial Phase:</h5>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {Object.entries(wizard.domains).map(([key, value]) => (
-                    <div key={key} className={`flex justify-between p-1 bg-${darkMode ? 'gray-900' : 'gray-50'} rounded`}>
-                      <span className={`text-${colors.mutedText}`}>{DOMAIN_NAMES[key]}:</span>
-                      <span className={`font-bold text-${colors.bodyText}`}>{value}</span>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
-          );
-        }
+          )}
+        </div>
+      );
+    }
 
-        // For brevity, I'll provide stub implementations for the remaining components
-        // They follow the same pattern: receive darkMode prop, use colors = darkMode ? config.colors.dark : config.colors.light
-        
-        function VotingPhase({ wizards, setWizards, currentWizardId, setCurrentWizardId, allWizardsLocked, showResults, darkMode }) {
-          const colors = darkMode ? config.colors.dark : config.colors.light;
-          // ... rest of implementation with color classes updated
-          return <div className={`text-${colors.bodyText}`}>Voting Phase (implementation same as before but with colors variable)</div>;
-        }
+    // -------------------------------------------------------------------------
+    // Wizard Domain Setup
+    // -------------------------------------------------------------------------
+    function WizardDomainSetup({ wizard, updateWizardDomains, removeWizard }) {
+      const [manual, setManual] = useState(false);
+      const [manualDomains, setManualDomains] = useState(wizard.domains);
 
-        function ResultsPhase({ wizards, darkMode }) {
-          const colors = darkMode ? config.colors.dark : config.colors.light;
-          // ... rest of implementation with color classes updated
-          return <div className={`text-${colors.bodyText}`}>Results Phase (implementation same as before but with colors variable)</div>;
-        }
+      const totalPower = Object.values(wizard.domains).reduce((s, v) => s + v, 0);
 
-        // Render the app
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<ArchmageAscensionApp />);
-    </script>
+      const handleDomainsCalculated = (domains) => {
+        if (!manual) updateWizardDomains(wizard.id, domains);
+      };
+
+      const handleManualChange = (domainKey, value) => {
+        const next = { ...manualDomains, [domainKey]: Math.max(0, parseInt(value || '0', 10)) };
+        setManualDomains(next);
+        if (manual) updateWizardDomains(wizard.id, next);
+      };
+
+      const toggleManual = () => {
+        setManual(prev => {
+          const next = !prev;
+          if (next) updateWizardDomains(wizard.id, manualDomains);
+          return next;
+        });
+      };
+
+      return (
+        <div className="wizard-card">
+          <div className="row between wrap">
+            <div>
+              <h3 style={{ marginBottom: '0.25rem' }}>{wizard.name}</h3>
+              <span className="pill">Total Power: <strong>{totalPower}</strong></span>
+            </div>
+            <button className="btn-danger" onClick={() => removeWizard(wizard.id)}>
+              {TEXT.removeButton}
+            </button>
+          </div>
+
+          <div className="divider" />
+
+          {!manual && (
+            <SpellCalculator onDomainsCalculated={handleDomainsCalculated} />
+          )}
+
+          <div style={{ marginTop: '1rem' }}>
+            <button className={manual ? 'btn-secondary' : 'btn-primary'} onClick={toggleManual}>
+              {manual ? TEXT.manualEntryActive : TEXT.switchToManual}
+            </button>
+          </div>
+
+          {manual && (
+            <div className="card" style={{ marginTop: '1rem' }}>
+              <h4 style={{ marginBottom: '0.75rem' }}>Manual Power Entry</h4>
+              <div className="domain-grid">
+                {Object.entries(DOMAIN_NAMES).map(([domainKey, domainName]) => (
+                  <div key={domainKey} className="domain-item">
+                    <div className="field">
+                      <label>{domainName}</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={manualDomains[domainKey] ?? 0}
+                        onChange={(e) => handleManualChange(domainKey, e.target.value)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="info-box" style={{ marginTop: '1rem' }}>
+            <h4 style={{ marginBottom: '0.5rem' }}>Current Power (for Trial Phase)</h4>
+            <div className="domain-grid">
+              {Object.entries(wizard.domains).map(([k, v]) => (
+                <div key={k} className="domain-item">
+                  <div className="row between">
+                    <span className="muted small">{DOMAIN_NAMES[k] || k}</span>
+                    <span className="highlight">{v}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // Setup Phase
+    // -------------------------------------------------------------------------
+    function SetupPhase({ wizards, setWizards }) {
+      const [newWizardName, setNewWizardName] = useState('');
+
+      const addWizard = () => {
+        const name = newWizardName.trim();
+        if (!name) return;
+        const domains = Object.fromEntries(Object.keys(DOMAINS).map(k => [k, 0]));
+        const wizard = {
+          id: Date.now() + Math.random(),
+          name,
+          domains,
+          allocations: {},
+          locked: false
+        };
+        setWizards(prev => [wizard, ...prev]);
+        setNewWizardName('');
+      };
+
+      const removeWizard = (wizardId) => {
+        setWizards(prev => prev.filter(w => w.id !== wizardId));
+      };
+
+      const updateWizardDomains = (wizardId, domains) => {
+        setWizards(prev => prev.map(w => (w.id === wizardId ? { ...w, domains } : w)));
+      };
+
+      const canStart = useMemo(() => {
+        return wizards.length >= 2 && wizards.every(w => Object.values(w.domains).some(v => v > 0));
+      }, [wizards]);
+
+      return (
+        <div className="card">
+          <h2>{TEXT.setupHeader}</h2>
+          <p className="subtitle" style={{ marginBottom: '1rem' }}>{TEXT.setupSubheader}</p>
+
+          <div className="card" style={{ marginTop: '1rem' }}>
+            <h4>{TEXT.addPlayersHeader}</h4>
+            <div className="input-row" style={{ marginTop: '0.75rem' }}>
+              <input
+                type="text"
+                value={newWizardName}
+                onChange={(e) => setNewWizardName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') addWizard(); }}
+                placeholder={TEXT.playerInputPlaceholder}
+              />
+              <button className="btn-primary" onClick={addWizard}>
+                {TEXT.addPlayerButton}
+              </button>
+            </div>
+            <p className="muted small" style={{ marginTop: '0.5rem' }}>
+              Tip: On mobile, the button will stack under the input.
+            </p>
+          </div>
+
+          {wizards.length > 0 && (
+            <div style={{ marginTop: '1.25rem' }} className="stack">
+              {wizards.map(w => (
+                <WizardDomainSetup
+                  key={w.id}
+                  wizard={w}
+                  updateWizardDomains={updateWizardDomains}
+                  removeWizard={removeWizard}
+                />
+              ))}
+            </div>
+          )}
+
+          {wizards.length >= 2 && (
+            <div style={{ marginTop: '1.5rem' }}>
+              <button className={canStart ? 'btn-success' : 'btn-secondary'} disabled={!canStart} style={{ width: '100%', opacity: canStart ? 1 : 0.7 }}>
+                {canStart ? TEXT.startGameButton : TEXT.startGameRequirement}
+              </button>
+              {!canStart && (
+                <div className="note" style={{ marginTop: '0.75rem' }}>
+                  Ensure every wizard has at least 1 power in any domain.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // Placeholder phases (kept simple but mobile-friendly)
+    // -------------------------------------------------------------------------
+    function VotingPhase() {
+      return (
+        <div className="card">
+          <h2>Power Allocation</h2>
+          <p className="muted">Voting phase UI not implemented in this build.</p>
+        </div>
+      );
+    }
+
+    function ResultsPhase() {
+      return (
+        <div className="card">
+          <h2>Results</h2>
+          <p className="muted">Results phase UI not implemented in this build.</p>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // Main App (dark-only, mobile friendly)
+    // -------------------------------------------------------------------------
+    function ArchmageAscensionApp() {
+      const [gameState, setGameState] = useState('setup');
+      const [wizards, setWizards] = useState([]);
+
+      return (
+        <div className="container app-shell">
+          <header>
+            <h1>{TEXT.gameName}</h1>
+            <div className="subtitle">{TEXT.gameSubtitle}</div>
+          </header>
+
+          {gameState === 'setup' && (
+            <SetupPhase wizards={wizards} setWizards={setWizards} />
+          )}
+
+          {gameState === 'voting' && (
+            <VotingPhase />
+          )}
+
+          {gameState === 'results' && (
+            <ResultsPhase />
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ArchmageAscensionApp />);
+  </script>
 </body>
 </html>
