@@ -542,6 +542,8 @@
     function VotingPhase({ wizards, onFinishVoting }) {
       const playerCount = wizards.length;
       const availableTrials = config.trials.filter(t => !t.minPlayers || t.minPlayers <= playerCount);
+      const recognitionTable = config.recognitionPoints[playerCount] || {};
+
       const [allocations, setAllocations] = useState(() => {
         const initial = {};
         wizards.forEach(w => {
@@ -554,6 +556,7 @@
       });
       const [locked, setLocked] = useState({});
       const [selectedWizard, setSelectedWizard] = useState(wizards[0]?.id);
+      const [selectedTrial, setSelectedTrial] = useState(null);
 
       const wizard = wizards.find(w => w.id === selectedWizard);
       if (!wizard) return null;
@@ -611,149 +614,272 @@
 
       const allLocked = wizards.every(w => locked[w.id]);
 
+      // Get validation feedback for trial
+      const getValidationFeedback = (trial, trialAlloc) => {
+        const domainsUsed = Object.keys(trialAlloc).filter(d => (trialAlloc[d] || 0) > 0 && d !== 'wilds');
+        const elementalDomains = ['earth', 'fire', 'water', 'air'];
+        const elementalDomainsUsed = domainsUsed.filter(d => elementalDomains.includes(d));
+        const total = Object.values(trialAlloc).reduce((sum, v) => sum + v, 0);
+
+        if (total === 0) return null;
+
+        const isValid = trial.isValidAllocation(domainsUsed, elementalDomainsUsed);
+
+        if (isValid) {
+          return { type: 'valid', message: `✓ Valid allocation • Total Power: ${total}` };
+        } else {
+          return { type: 'error', message: `✗ Invalid: This allocation doesn't meet the trial requirements` };
+        }
+      };
+
       return (
         <div className="stack">
           <div className="card">
-            <h2>Power Allocation</h2>
+            <div className="row between wrap" style={{ marginBottom: '1rem' }}>
+              <h2>Power Allocation</h2>
+              {allLocked && (
+                <button
+                  className="btn-success"
+                  onClick={() => onFinishVoting(allocations)}
+                  style={{ padding: '0.75rem 1.5rem' }}
+                >
+                  🏆 Reveal Results
+                </button>
+              )}
+            </div>
             <p className="subtitle">Secretly allocate your domain power to the trials</p>
 
-            <div style={{ marginTop: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Select Wizard</label>
-              <select
-                value={selectedWizard}
-                onChange={(e) => setSelectedWizard(e.target.value)}
-                style={{ width: '100%', padding: '0.75rem', fontSize: '1rem' }}
-              >
-                {wizards.map(w => (
-                  <option key={w.id} value={w.id}>
-                    {w.name} {locked[w.id] ? '🔒' : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {locked[wizard.id] && (
-              <div className="warning-box" style={{ marginTop: '1rem' }}>
-                <strong>Locked:</strong> Unlock to make changes
-              </div>
-            )}
-
-            <div className="info-box" style={{ marginTop: '1rem' }}>
-              <h4>Available Power</h4>
-              <div className="domain-grid" style={{ marginTop: '0.75rem' }}>
-                {Object.entries(wizard.domains).map(([domain, capacity]) => {
-                  const allocated = allocatedByDomain[domain] || 0;
-                  const remaining = remainingByDomain[domain] || 0;
-                  return (
-                    <div key={domain} className="domain-item">
-                      <div className="row between">
-                        <span className="small">{DOMAIN_NAMES[domain] || domain}</span>
-                        <span className="highlight">{remaining}/{capacity}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div style={{ marginTop: '1rem' }}>
-              <button
-                className={locked[wizard.id] ? 'btn-secondary' : 'btn-primary'}
-                onClick={toggleLock}
-                style={{ width: '100%' }}
-              >
-                {locked[wizard.id] ? '🔓 Unlock Allocations' : '🔒 Lock In Allocations'}
-              </button>
+            {/* Wizard selector buttons */}
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+              {wizards.map(w => (
+                <button
+                  key={w.id}
+                  onClick={() => setSelectedWizard(w.id)}
+                  className={w.id === selectedWizard ? 'btn-primary' : locked[w.id] ? 'btn-success' : 'btn-secondary'}
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                >
+                  {w.name} {locked[w.id] ? '🔒' : ''}
+                </button>
+              ))}
             </div>
           </div>
 
-          {!locked[wizard.id] && (
+          {/* Wizard Power Reference Table */}
+          <div className="card" style={{ overflowX: 'auto' }}>
+            <h4>Wizard Domain Power Reference</h4>
+            <table style={{ width: '100%', marginTop: '1rem', minWidth: '600px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                  <th style={{ padding: '0.75rem', textAlign: 'left' }}>Wizard</th>
+                  {Object.entries(DOMAIN_NAMES).map(([key, name]) => (
+                    <th key={key} style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.85rem' }}>{name}</th>
+                  ))}
+                  <th style={{ padding: '0.75rem', textAlign: 'center' }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {wizards.map(w => (
+                  <tr
+                    key={w.id}
+                    style={{
+                      borderBottom: '1px solid var(--border)',
+                      background: w.id === selectedWizard ? 'var(--card-bg-hover)' : 'transparent'
+                    }}
+                  >
+                    <td style={{ padding: '0.75rem', fontWeight: 600 }}>
+                      {w.name} {locked[w.id] && '🔒'}
+                    </td>
+                    {Object.keys(DOMAIN_NAMES).map(domainKey => (
+                      <td key={domainKey} style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        {w.domains[domainKey] || 0}
+                      </td>
+                    ))}
+                    <td style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 700 }}>
+                      {Object.values(w.domains).reduce((sum, v) => sum + v, 0)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Current Wizard Allocation */}
+          <div className="grid" style={{ gridTemplateColumns: locked[wizard.id] ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+            {/* Left column: Remaining Power & Trial Selection */}
             <div className="stack">
-              {availableTrials.map(trial => {
-                const trialAlloc = wizardAllocations[trial.id] || {};
-                const trialTotal = Object.values(trialAlloc).reduce((sum, v) => sum + v, 0);
-                const domainsUsed = Object.keys(trialAlloc).filter(d => (trialAlloc[d] || 0) > 0 && d !== 'wilds');
-                const elementalDomains = ['earth', 'fire', 'water', 'air'];
-                const elementalDomainsUsed = domainsUsed.filter(d => elementalDomains.includes(d));
-                const isValid = trial.isValidAllocation(domainsUsed, elementalDomainsUsed);
+              {locked[wizard.id] && (
+                <div className="warning-box">
+                  <strong>Locked:</strong> Unlock to make changes
+                </div>
+              )}
 
-                return (
-                  <div key={trial.id} className="card">
-                    <div className="row between wrap">
-                      <div>
-                        <h4>{trial.name}</h4>
-                        <p className="small muted">{trial.description}</p>
-                      </div>
-                      <button
-                        className="btn-danger"
-                        onClick={() => clearTrial(trial.id)}
-                        style={{ minWidth: '80px' }}
-                      >
-                        Clear
-                      </button>
-                    </div>
-
-                    {trialTotal > 0 && !isValid && (
-                      <div className="warning-box" style={{ marginTop: '0.75rem' }}>
-                        <strong>Invalid:</strong> This allocation doesn't meet the trial requirements
-                      </div>
-                    )}
-
-                    {trialTotal > 0 && isValid && (
-                      <div className="pill" style={{ marginTop: '0.75rem', background: 'rgba(34, 197, 94, 0.2)', border: '1px solid rgba(34, 197, 94, 0.4)' }}>
-                        ✓ Valid • Total Power: <strong>{trialTotal}</strong>
-                      </div>
-                    )}
-
-                    <div className="domain-grid" style={{ marginTop: '1rem' }}>
-                      {Object.entries(wizard.domains).map(([domain, capacity]) => {
-                        const currentAlloc = trialAlloc[domain] || 0;
-                        const remaining = remainingByDomain[domain] || 0;
-                        const maxAllowable = remaining + currentAlloc;
-                        const isWild = domain === 'wilds';
-                        const hasRegularPower = Object.entries(trialAlloc).some(([d, v]) => d !== 'wilds' && v > 0);
-
-                        return (
-                          <div key={domain} className="domain-item">
-                            <div className="field">
-                              <label className="small">{DOMAIN_NAMES[domain] || domain}</label>
-                              <input
-                                type="number"
-                                min="0"
-                                max={maxAllowable}
-                                value={currentAlloc}
-                                onChange={(e) => updateAllocation(trial.id, domain, e.target.value)}
-                                disabled={isWild && !hasRegularPower}
-                                title={isWild && !hasRegularPower ? 'Add regular power first' : ''}
-                              />
-                            </div>
+              {/* Remaining Power */}
+              <div className="card">
+                <h4>Remaining Power</h4>
+                <div className="domain-grid" style={{ marginTop: '0.75rem' }}>
+                  {Object.entries(wizard.domains).map(([domain, capacity]) => {
+                    const remaining = remainingByDomain[domain] || 0;
+                    return (
+                      <div key={domain} className="domain-item">
+                        <div style={{ textAlign: 'center' }}>
+                          <div className="small muted">{DOMAIN_NAMES[domain] || domain}</div>
+                          <div className="highlight" style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.25rem' }}>
+                            <span style={{ color: remaining === 0 ? 'var(--text-dim)' : undefined }}>
+                              {remaining}
+                            </span>
+                            <span className="small muted"> / {capacity}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-          {allLocked && (
-            <div className="card">
+              {/* Lock/Unlock Button */}
               <button
-                className="btn-success"
-                onClick={() => onFinishVoting(allocations)}
-                style={{ width: '100%', fontSize: '1.1rem', padding: '1rem' }}
+                className={locked[wizard.id] ? 'btn-danger' : 'btn-success'}
+                onClick={toggleLock}
+                style={{ width: '100%', padding: '1rem' }}
               >
-                🏆 Reveal Results
+                {locked[wizard.id] ? '🔓 Unlock Allocations' : '🔒 Lock In Allocations'}
               </button>
-            </div>
-          )}
 
-          {totalRemaining > 0 && !locked[wizard.id] && (
-            <div className="note">
-              <strong>Note:</strong> You have {totalRemaining} unallocated power remaining
+              {/* Trial Selection */}
+              {!locked[wizard.id] && (
+                <div className="card">
+                  <h4>Select Trial to Allocate Power</h4>
+                  <div className="stack" style={{ marginTop: '1rem' }}>
+                    {availableTrials.map(trial => {
+                      const trialAlloc = wizardAllocations[trial.id] || {};
+                      const trialTotal = Object.values(trialAlloc).reduce((sum, v) => sum + v, 0);
+                      const feedback = getValidationFeedback(trial, trialAlloc);
+                      const rp = recognitionTable[trial.id] || {};
+                      const rpText = playerCount >= 6
+                        ? `${rp[1] || 0}/${rp[2] || 0} RP`
+                        : `${rp[1] || 0} RP`;
+
+                      return (
+                        <button
+                          key={trial.id}
+                          onClick={() => setSelectedTrial(trial.id)}
+                          className={selectedTrial === trial.id ? 'btn-primary' : 'btn-secondary'}
+                          style={{
+                            width: '100%',
+                            textAlign: 'left',
+                            padding: '1rem',
+                            border: feedback?.type === 'valid' ? '2px solid rgba(34, 197, 94, 0.5)' : undefined,
+                            background: feedback?.type === 'valid' ? 'rgba(34, 197, 94, 0.1)' : undefined
+                          }}
+                        >
+                          <div className="row between" style={{ marginBottom: '0.5rem' }}>
+                            <strong>{trial.name}</strong>
+                            <span className="pill" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}>{rpText}</span>
+                          </div>
+                          <div className="small muted">{trial.description}</div>
+                          {trialTotal > 0 && (
+                            <div style={{ marginTop: '0.5rem' }}>
+                              <span className="highlight" style={{ fontSize: '0.9rem' }}>
+                                Total: {trialTotal}
+                              </span>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {totalRemaining > 0 && !locked[wizard.id] && (
+                <div className="note">
+                  <strong>Note:</strong> You have {totalRemaining} unallocated power remaining
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Right column: Trial Allocation Details */}
+            {selectedTrial && !locked[wizard.id] && (
+              <div className="card">
+                {(() => {
+                  const trial = availableTrials.find(t => t.id === selectedTrial);
+                  if (!trial) return null;
+
+                  const trialAlloc = wizardAllocations[trial.id] || {};
+                  const feedback = getValidationFeedback(trial, trialAlloc);
+
+                  return (
+                    <>
+                      <div className="row between wrap">
+                        <h4>{trial.name}</h4>
+                        <button
+                          className="btn-danger"
+                          onClick={() => clearTrial(trial.id)}
+                          style={{ minWidth: '80px' }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+
+                      <p className="small muted" style={{ marginTop: '0.5rem' }}>{trial.description}</p>
+
+                      {feedback && (
+                        <div
+                          className={feedback.type === 'valid' ? 'info-box' : 'warning-box'}
+                          style={{
+                            marginTop: '1rem',
+                            background: feedback.type === 'valid' ? 'rgba(34, 197, 94, 0.15)' : undefined,
+                            border: feedback.type === 'valid' ? '1px solid rgba(34, 197, 94, 0.4)' : undefined
+                          }}
+                        >
+                          {feedback.message}
+                        </div>
+                      )}
+
+                      <div className="domain-grid" style={{ marginTop: '1rem' }}>
+                        {Object.entries(wizard.domains).map(([domain, capacity]) => {
+                          const currentAlloc = trialAlloc[domain] || 0;
+                          const remaining = remainingByDomain[domain] || 0;
+                          const maxAllowable = remaining + currentAlloc;
+                          const isWild = domain === 'wilds';
+                          const hasRegularPower = Object.entries(trialAlloc).some(([d, v]) => d !== 'wilds' && v > 0);
+
+                          return (
+                            <div key={domain} className="domain-item">
+                              <div className="field">
+                                <label className="small">{DOMAIN_NAMES[domain] || domain}</label>
+                                {isWild && !hasRegularPower && (
+                                  <p className="small muted" style={{ fontSize: '0.7rem', marginBottom: '0.25rem', fontStyle: 'italic' }}>
+                                    Add regular power first
+                                  </p>
+                                )}
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={maxAllowable}
+                                  value={currentAlloc}
+                                  onChange={(e) => updateAllocation(trial.id, domain, e.target.value)}
+                                  disabled={isWild && !hasRegularPower}
+                                  title={isWild && !hasRegularPower ? 'Add regular power first' : ''}
+                                  style={{
+                                    opacity: isWild && !hasRegularPower ? 0.5 : 1,
+                                    cursor: isWild && !hasRegularPower ? 'not-allowed' : 'text'
+                                  }}
+                                />
+                                <div className="small muted" style={{ marginTop: '0.25rem', fontSize: '0.75rem' }}>
+                                  Available: {maxAllowable}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
         </div>
       );
     }
