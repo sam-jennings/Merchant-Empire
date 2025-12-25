@@ -6,6 +6,7 @@
     <title>Archmage Ascension - Quick Reference</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="archmage-theme.css">
+    <script src="config.js"></script>
 </head>
 <body>
     <div class="container">
@@ -73,23 +74,8 @@
                 <div class="card wide-card">
                     <div class="card-icon">🌟</div>
                     <h3>The Four Elements</h3>
-                    <div class="element-symbols">
-                        <div class="element">
-                            <span class="element-icon">♠</span>
-                            <span><span class="highlight">Spades:</span> Earth</span>
-                        </div>
-                        <div class="element">
-                            <span class="element-icon">♥</span>
-                            <span><span class="highlight">Hearts:</span> Fire</span>
-                        </div>
-                        <div class="element">
-                            <span class="element-icon">♦</span>
-                            <span><span class="highlight">Diamonds:</span> Water</span>
-                        </div>
-                        <div class="element">
-                            <span class="element-icon">♣</span>
-                            <span><span class="highlight">Clubs:</span> Air</span>
-                        </div>
+                    <div class="element-symbols" id="element-symbols-container">
+                        <!-- Dynamically populated from config.js -->
                     </div>
                     <div class="note">
                         Each card is a <strong>magical component</strong>: Element (suit) + Type (value 1-20)
@@ -461,28 +447,8 @@
                 <div class="card wide-card">
                     <h3>Recognition Points by Spell Size</h3>
                     <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Size</th>
-                                    <th>Conjuration</th>
-                                    <th>Transfiguration</th>
-                                    <th>Enchantment</th>
-                                    <th>Perfect Transmutation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-                                <tr><td>4</td><td>6</td><td>8</td><td>14</td><td>11</td></tr>
-                                <tr><td>5</td><td>9</td><td>12</td><td>—</td><td>16</td></tr>
-                                <tr><td>6</td><td>13</td><td>17</td><td>—</td><td>23</td></tr>
-                                <tr><td>7</td><td>18</td><td>23</td><td>—</td><td>32</td></tr>
-                                <tr><td>8</td><td>24</td><td>30</td><td>—</td><td>42</td></tr>
-                                <tr><td>9</td><td>31</td><td>38</td><td>—</td><td>54</td></tr>
-                                <tr><td>10</td><td>39</td><td>47</td><td>—</td><td>68</td></tr>
-                                <tr><td>11</td><td>48</td><td>57</td><td>—</td><td>84</td></tr>
-                                <tr><td>12</td><td>58</td><td>68</td><td>—</td><td>102</td></tr>
-                            </tbody>
+                        <table id="recognition-points-table">
+                            <!-- Dynamically populated from config.js -->
                         </table>
                     </div>
                 </div>
@@ -568,19 +534,15 @@
                 <div class="card">
                     <div class="card-icon">🔥</div>
                     <h3>Power Calculation</h3>
-                    
-                    <div class="formula">
-                        3-4 components: Power = Length<br>
-                        5-6 components: Power = Length × 1.5 (round normally)<br>
-                        7+ components: Power = Length × 2.0
+
+                    <div class="formula" id="power-formula">
+                        <!-- Dynamically populated from config.js -->
                     </div>
-                    
+
                     <h4 style="margin-top: 1rem;">Examples</h4>
                     <div class="table-wrap">
-                        <table style="margin-top: 0.5rem;">
-                            <tr><td>3 components</td><td>= 3 power</td></tr>
-                            <tr><td>5 components</td><td>= 8 power (5 × 1.5 = 7.5 → 8)</td></tr>
-                            <tr><td>7 components</td><td>= 14 power</td></tr>
+                        <table style="margin-top: 0.5rem;" id="power-examples-table">
+                            <!-- Dynamically populated from config.js -->
                         </table>
                     </div>
                 </div>
@@ -631,46 +593,8 @@
                     <div class="card-icon">🎯</div>
                     <h3>The Six Trials</h3>
                     <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Trial</th>
-                                    <th>Requirements</th>
-                                    <th>What Winning Proves</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Elemental Purity</strong></td>
-                                    <td>Exactly one elemental domain</td>
-                                    <td>Unmatched mastery of a single element</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Elemental Harmony</strong></td>
-                                    <td>2+ different elemental domains</td>
-                                    <td>Ability to harmonize multiple elements</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Transformation</strong></td>
-                                    <td>Transformation domain only</td>
-                                    <td>Superior transformation mastery</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Enchantment</strong></td>
-                                    <td>Enchantment domain only</td>
-                                    <td>Mastery of enduring enchantments</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Focused Power</strong></td>
-                                    <td>Exactly one domain (any type)</td>
-                                    <td>True mastery through specialization</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Universal Power</strong></td>
-                                    <td>2+ different domains (any mix)</td>
-                                    <td>Versatility needed to lead all wizards</td>
-                                </tr>
-                            </tbody>
+                        <table id="trials-table">
+                            <!-- Dynamically populated from config.js -->
                         </table>
                     </div>
                 </div>
@@ -679,29 +603,8 @@
                     <h3>Recognition Points by Player Count</h3>
 
                     <div class="table-wrap">
-                        <table style="margin-bottom: 1.5rem;">
-                            <thead>
-                                <tr>
-                                    <th>Trial</th>
-                                    <th>2 Players</th>
-                                    <th>3 Players</th>
-                                    <th>4 Players</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Elemental Purity</td><td>6</td><td>8</td><td>8</td></tr>
-                                <tr><td>Elemental Harmony</td><td>4</td><td>5</td><td>6</td></tr>
-                                <tr><td>Transformation</td><td>7</td><td>9</td><td>9</td></tr>
-                                <tr><td>Enchantment</td><td>4</td><td>5</td><td>6</td></tr>
-                                <tr><td>Focused Power</td><td>6</td><td>7</td><td>7</td></tr>
-                                <tr><td>Universal Power</td><td>3</td><td>4</td><td>5</td></tr>
-                                <tr style="background: rgba(246, 201, 74, 0.1);">
-                                    <td><strong>Total Pool</strong></td>
-                                    <td><strong>30</strong></td>
-                                    <td><strong>38</strong></td>
-                                    <td><strong>41</strong></td>
-                                </tr>
-                            </tbody>
+                        <table style="margin-bottom: 1.5rem;" id="recognition-by-players-table">
+                            <!-- Dynamically populated from config.js -->
                         </table>
                     </div>
 
@@ -732,16 +635,233 @@
             // Hide all tab contents
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.classList.remove('active'));
-            
+
             // Remove active class from all tabs
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => tab.classList.remove('active'));
-            
+
             // Show selected tab content
             document.getElementById(tabName).classList.add('active');
-            
+
             // Add active class to clicked tab
             event.target.classList.add('active');
+        }
+
+        // Populate content from config.js when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const config = typeof GameConfig !== 'undefined' ? GameConfig : null;
+
+            if (!config) {
+                console.warn('GameConfig not loaded, using fallback content');
+                return;
+            }
+
+            // Populate element symbols
+            populateElementSymbols(config);
+
+            // Populate power formula and examples
+            populatePowerCalculation(config);
+
+            // Populate recognition points table (needs to be added to config)
+            populateRecognitionPointsTable();
+
+            // Populate trials table
+            populateTrialsTable(config);
+
+            // Populate recognition points by player count
+            populateRecognitionByPlayersTable(config);
+        });
+
+        function populateElementSymbols(config) {
+            const container = document.getElementById('element-symbols-container');
+            if (!container || !config.elements) return;
+
+            container.innerHTML = config.elements.map(el => `
+                <div class="element">
+                    <span class="element-icon">${el.symbol}</span>
+                    <span><span class="highlight">Spades:</span> ${el.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function populatePowerCalculation(config) {
+            const formulaDiv = document.getElementById('power-formula');
+            const examplesTable = document.getElementById('power-examples-table');
+
+            if (!formulaDiv || !examplesTable) return;
+
+            // Use config formula description or fallback
+            const formulaDesc = config.powerFormulaDescription || '3-4 components ×1, 5-6 components ×1.5, 7+ components ×2';
+            formulaDiv.textContent = formulaDesc;
+
+            // Generate examples
+            const calcPower = config.calculatePower || ((size) => {
+                if (size <= 4) return size * 1;
+                if (size <= 6) return Math.round(size * 1.5);
+                return size * 2;
+            });
+
+            const examples = [3, 5, 7];
+            examplesTable.innerHTML = examples.map(size => {
+                const power = calcPower(size);
+                const breakdown = config.getPowerBreakdown ?
+                    config.getPowerBreakdown(size, calcPower) :
+                    `${size} components = ${power} power`;
+                return `<tr><td>${size} components</td><td>= ${breakdown}</td></tr>`;
+            }).join('');
+        }
+
+        function populateRecognitionPointsTable() {
+            const table = document.getElementById('recognition-points-table');
+            if (!table) return;
+
+            const config = typeof GameConfig !== 'undefined' ? GameConfig : null;
+            const rpBySize = config?.recognitionPointsBySpellSize;
+
+            // Fallback data if config not available
+            const rpData = rpBySize ? null : {
+                3: { conj: 4, trans: 5, ench: 6, perfect: 7 },
+                4: { conj: 6, trans: 8, ench: 14, perfect: 11 },
+                5: { conj: 9, trans: 12, ench: '—', perfect: 16 },
+                6: { conj: 13, trans: 17, ench: '—', perfect: 23 },
+                7: { conj: 18, trans: 23, ench: '—', perfect: 32 },
+                8: { conj: 24, trans: 30, ench: '—', perfect: 42 },
+                9: { conj: 31, trans: 38, ench: '—', perfect: 54 },
+                10: { conj: 39, trans: 47, ench: '—', perfect: 68 },
+                11: { conj: 48, trans: 57, ench: '—', perfect: 84 },
+                12: { conj: 58, trans: 68, ench: '—', perfect: 102 }
+            };
+
+            const thead = `
+                <thead>
+                    <tr>
+                        <th>Size</th>
+                        <th>Conjuration</th>
+                        <th>Transfiguration</th>
+                        <th>Enchantment</th>
+                        <th>Perfect Transmutation</th>
+                    </tr>
+                </thead>
+            `;
+
+            let tbody;
+            if (rpBySize) {
+                // Use config data
+                const sizes = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                tbody = '<tbody>' + sizes.map(size => `
+                    <tr>
+                        <td>${size}</td>
+                        <td>${rpBySize.conjuration[size] || '—'}</td>
+                        <td>${rpBySize.transfiguration[size] || '—'}</td>
+                        <td>${rpBySize.enchantment[size] || '—'}</td>
+                        <td>${rpBySize['perfect-transmutation'][size] || '—'}</td>
+                    </tr>
+                `).join('') + '</tbody>';
+            } else {
+                // Use fallback data
+                tbody = '<tbody>' + Object.entries(rpData).map(([size, values]) => `
+                    <tr>
+                        <td>${size}</td>
+                        <td>${values.conj}</td>
+                        <td>${values.trans}</td>
+                        <td>${values.ench}</td>
+                        <td>${values.perfect}</td>
+                    </tr>
+                `).join('') + '</tbody>';
+            }
+
+            table.innerHTML = thead + tbody;
+        }
+
+        function populateTrialsTable(config) {
+            const table = document.getElementById('trials-table');
+            if (!table || !config.trials) return;
+
+            // Trial descriptions mapping
+            const trialInfo = {
+                'elemental-purity': { req: 'Exactly one elemental domain', proves: 'Unmatched mastery of a single element' },
+                'elemental-harmony': { req: '2+ different elemental domains', proves: 'Ability to harmonize multiple elements' },
+                'transformation': { req: 'Transformation domain only', proves: 'Superior transformation mastery' },
+                'enchantment': { req: 'Enchantment domain only', proves: 'Mastery of enduring enchantments' },
+                'focused-power': { req: 'Exactly one domain (any type)', proves: 'True mastery through specialization' },
+                'universal-power': { req: '2+ different domains (any mix)', proves: 'Versatility needed to lead all wizards' }
+            };
+
+            const thead = `
+                <thead>
+                    <tr>
+                        <th>Trial</th>
+                        <th>Requirements</th>
+                        <th>What Winning Proves</th>
+                    </tr>
+                </thead>
+            `;
+
+            const tbody = '<tbody>' + config.trials.map(trial => {
+                const info = trialInfo[trial.id] || { req: trial.description, proves: '—' };
+                return `
+                    <tr>
+                        <td><strong>${trial.name}</strong></td>
+                        <td>${info.req}</td>
+                        <td>${info.proves}</td>
+                    </tr>
+                `;
+            }).join('') + '</tbody>';
+
+            table.innerHTML = thead + tbody;
+        }
+
+        function populateRecognitionByPlayersTable(config) {
+            const table = document.getElementById('recognition-by-players-table');
+            if (!table || !config.recognitionPoints) return;
+
+            const playerCounts = Object.keys(config.recognitionPoints).sort();
+            const trialOrder = [
+                'elemental-purity',
+                'elemental-harmony',
+                'transformation',
+                'enchantment',
+                'focused-power',
+                'universal-power'
+            ];
+
+            const trialNames = {
+                'elemental-purity': 'Elemental Purity',
+                'elemental-harmony': 'Elemental Harmony',
+                'transformation': 'Transformation',
+                'enchantment': 'Enchantment',
+                'focused-power': 'Focused Power',
+                'universal-power': 'Universal Power'
+            };
+
+            const thead = `
+                <thead>
+                    <tr>
+                        <th>Trial</th>
+                        ${playerCounts.map(count => `<th>${count} Players</th>`).join('')}
+                    </tr>
+                </thead>
+            `;
+
+            let totalsByCount = {};
+            playerCounts.forEach(count => totalsByCount[count] = 0);
+
+            const tbody = '<tbody>' + trialOrder.map(trialId => {
+                const points = playerCounts.map(count => {
+                    const value = config.recognitionPoints[count][trialId] || 0;
+                    totalsByCount[count] += value;
+                    return `<td>${value}</td>`;
+                }).join('');
+
+                return `<tr><td>${trialNames[trialId]}</td>${points}</tr>`;
+            }).join('') +
+            `<tr style="background: rgba(246, 201, 74, 0.1);">
+                <td><strong>Total Pool</strong></td>
+                ${playerCounts.map(count => `<td><strong>${totalsByCount[count]}</strong></td>`).join('')}
+            </tr>` +
+            '</tbody>';
+
+            table.innerHTML = thead + tbody;
         }
     </script>
 </body>
