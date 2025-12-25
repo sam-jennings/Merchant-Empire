@@ -108,6 +108,8 @@ p, li, span, label {
     position: relative;
     overflow: hidden;
     margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .card::before, .spell-card::before, .wizard-card::before, .trial-card::before {
@@ -137,6 +139,12 @@ p, li, span, label {
     font-family: 'Cinzel', serif;
     color: var(--gold);
     margin-bottom: 0.8rem;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
 /* Buttons */
@@ -253,6 +261,19 @@ td {
 
 tr:hover {
     background: rgba(183, 148, 246, 0.1);
+}
+
+/* Table scroll wrapper for mobile */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1rem 0;
+}
+
+.table-wrap table {
+    min-width: 560px;
+    margin: 0;
 }
 
 /* Info boxes and warnings */
@@ -382,6 +403,11 @@ tr:hover {
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
+    align-items: stretch;
+}
+
+.grid > .card {
+    height: 100%;
 }
 
 .grid-2 {
@@ -515,14 +541,15 @@ header {
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     h1 { font-size: 2.5rem; }
-    
+
     .tabs {
         gap: 0.5rem;
     }
-    
+
     .tab {
         padding: 0.8rem 1rem;
         font-size: 0.9rem;
+        min-height: 44px; /* Better touch target */
     }
 
     .grid, .grid-2, .grid-3 {
@@ -531,5 +558,48 @@ header {
 
     .container, #root {
         padding: 1rem;
+    }
+
+    /* Better touch targets on mobile */
+    button {
+        min-height: 44px;
+        padding: 0.9rem 1.5rem;
+    }
+
+    .card-icon {
+        font-size: 2rem;
+    }
+
+    /* Reduce hover transforms on mobile to avoid layout issues */
+    .card:hover, .spell-card:hover, .wizard-card:hover, .trial-card:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.3rem; }
+
+    .tabs {
+        gap: 0.25rem;
+    }
+
+    .tab {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .grid {
+        gap: 1rem;
+    }
+
+    .card, .spell-card, .wizard-card, .trial-card {
+        padding: 1rem;
+    }
+
+    .container, #root {
+        padding: 0.75rem;
     }
 }

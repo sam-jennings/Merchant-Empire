@@ -50,14 +50,21 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 42px;
-      height: 42px;
+      width: 48px;
+      height: 48px;
       border-radius: 10px;
       border: 1px solid rgba(183, 148, 246, 0.25);
       background: rgba(26, 11, 46, 0.35);
       color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
-    .icon-btn:hover { border-color: rgba(246, 201, 74, 0.6); transform: translateY(-1px); }
+    .icon-btn:hover {
+      border-color: rgba(246, 201, 74, 0.6);
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      transform: translateY(-1px);
+    }
 
     .spell-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
@@ -151,9 +158,9 @@
       </svg>
     );
 
-    const TrashIcon = ({ size = 18 }) => (
+    const TrashIcon = ({ size = 24 }) => (
       <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
       </svg>
     );
 
