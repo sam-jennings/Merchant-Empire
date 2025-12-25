@@ -223,6 +223,24 @@ const GameConfig = {
       },
       maxSources: 6,
       usesBreadthTiebreaker: true
+    },
+    {
+      id: 'complete-mastery',
+      name: 'Complete Mastery Trial',
+      description: 'Power from ALL THREE domain types (at least one element + Transformation + Enchantment)',
+      icon: 'Star',
+      minPlayers: 5,
+      getAvailableDomains: (currentSources) => {
+        return ['earth', 'fire', 'water', 'air', 'transformation', 'enchantment'];
+      },
+      isValidAllocation: (domainsUsed, elementalDomainsUsed) => {
+        const hasElement = elementalDomainsUsed.length >= 1;
+        const hasTransformation = domainsUsed.includes('transformation');
+        const hasEnchantment = domainsUsed.includes('enchantment');
+        return hasElement && hasTransformation && hasEnchantment;
+      },
+      maxSources: 6,
+      usesBreadthTiebreaker: true
     }
   ],
 
@@ -231,28 +249,55 @@ const GameConfig = {
   // ============================================================================
   recognitionPoints: {
     2: {
-      'elemental-purity': 6,
-      'elemental-harmony': 4,
-      'transformation': 7,
-      'enchantment': 4,
-      'focused-power': 6,
-      'universal-power': 3
+      'elemental-purity': { 1: 6 },
+      'elemental-harmony': { 1: 4 },
+      'transformation': { 1: 7 },
+      'enchantment': { 1: 4 },
+      'focused-power': { 1: 6 },
+      'universal-power': { 1: 3 }
     },
     3: {
-      'elemental-purity': 8,
-      'elemental-harmony': 5,
-      'transformation': 9,
-      'enchantment': 5,
-      'focused-power': 7,
-      'universal-power': 4
+      'elemental-purity': { 1: 8 },
+      'elemental-harmony': { 1: 5 },
+      'transformation': { 1: 9 },
+      'enchantment': { 1: 5 },
+      'focused-power': { 1: 7 },
+      'universal-power': { 1: 4 }
     },
     4: {
-      'elemental-purity': 8,
-      'elemental-harmony': 6,
-      'transformation': 9,
-      'enchantment': 6,
-      'focused-power': 7,
-      'universal-power': 5
+      'elemental-purity': { 1: 8 },
+      'elemental-harmony': { 1: 6 },
+      'transformation': { 1: 9 },
+      'enchantment': { 1: 6 },
+      'focused-power': { 1: 7 },
+      'universal-power': { 1: 5 }
+    },
+    5: {
+      'elemental-purity': { 1: 8 },
+      'elemental-harmony': { 1: 6 },
+      'transformation': { 1: 9 },
+      'enchantment': { 1: 6 },
+      'focused-power': { 1: 7 },
+      'universal-power': { 1: 5 },
+      'complete-mastery': { 1: 6 }
+    },
+    6: {
+      'elemental-purity': { 1: 7, 2: 3 },
+      'elemental-harmony': { 1: 6, 2: 2 },
+      'transformation': { 1: 8, 2: 3 },
+      'enchantment': { 1: 6, 2: 2 },
+      'focused-power': { 1: 7, 2: 3 },
+      'universal-power': { 1: 5, 2: 2 },
+      'complete-mastery': { 1: 6, 2: 2 }
+    },
+    7: {
+      'elemental-purity': { 1: 7, 2: 4 },
+      'elemental-harmony': { 1: 6, 2: 3 },
+      'transformation': { 1: 8, 2: 4 },
+      'enchantment': { 1: 6, 2: 3 },
+      'focused-power': { 1: 7, 2: 4 },
+      'universal-power': { 1: 5, 2: 3 },
+      'complete-mastery': { 1: 6, 2: 3 }
     }
   },
 
