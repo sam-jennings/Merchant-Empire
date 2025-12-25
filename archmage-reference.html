@@ -107,14 +107,10 @@
                     <div class="card-icon">🔄</div>
                     <h3>Transfiguration</h3>
                     <p><span class="accent-text">Sequential Values</span></p>
-                    
+
                     <h4>Requirements</h4>
                     <p>3+ components in sequence (any elements)</p>
-                    <div class="note">
-                        Cannot loop around (1-20-19 invalid)<br>
-                        1-2-3 and 18-19-20 are valid
-                    </div>
-                    
+
                     <h4>Benefit When Cast</h4>
                     <p><span class="highlight">Transformation Rights:</span> Exchange with The Exchange</p>
                     <ul>
@@ -127,18 +123,29 @@
                     <div class="card-icon">⚡</div>
                     <h3>Enchantment</h3>
                     <p><span class="accent-text">Matching Values</span></p>
-                    
+
                     <h4>Requirements</h4>
                     <p>3-4 components of the same value</p>
-                    
-                    <h4>Benefit (Always Active)</h4>
-                    <p><span class="highlight">Enhanced Capability:</span></p>
-                    <ul>
-                        <li>3 components: <span class="highlight">+1 learning action</span> & <span class="highlight">+1 spell cast</span> per turn</li>
-                        <li>4 components: <span class="highlight">Unlimited</span> learning & casting</li>
-                    </ul>
-                    <div class="note">
-                        When learned: Gain +1 counter (3-card) or set counters aside (4-card)
+
+                    <h4>Enchantments & Spell Casting</h4>
+                    <p>When you learn an Enchantment, you permanently enhance your capabilities:</p>
+
+                    <div class="phase-box" style="margin-top: 1rem;">
+                        <h4>3-component Enchantment</h4>
+                        <ul>
+                            <li>Gain <span class="highlight">+1 counter</span></li>
+                            <li>Cast <span class="highlight">1 additional spell</span> per turn</li>
+                            <li>Perform <span class="highlight">1 additional learning action</span> per turn</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase-box">
+                        <h4>4-component Enchantment</h4>
+                        <ul>
+                            <li><span class="highlight">Unlimited casting</span> - cast ALL your spells</li>
+                            <li><span class="highlight">Unlimited learning</span> - perform as many learning actions as you want</li>
+                            <li>(You no longer need to track counters)</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -185,30 +192,33 @@
         <!-- TURN STRUCTURE TAB -->
         <div id="turn" class="tab-content">
             <div class="grid">
-                <div class="card wide-card">
+                <div class="card">
                     <div class="card-icon">🎯</div>
-                    <h3>Turn Sequence</h3>
-                    <div class="phase-box">
-                        <h4>Before Turn Begins: Choose Which Spells to Cast</h4>
-                        <p>Place your counters on the spells you want to cast this turn</p>
-                        <ul style="margin-top: 0.5rem;">
-                            <li>Base: 1 spell (1 counter)</li>
-                            <li>Each 3-component Enchantment: +1 spell (+1 counter)</li>
-                            <li>4-component Enchantment: Cast all spells (unlimited)</li>
-                        </ul>
+                    <h3>1. Cast Spells</h3>
+                    <p>Choose which spells to cast this turn</p>
+
+                    <h4>Place Counters on Spells</h4>
+                    <ul>
+                        <li>Base: 1 spell (1 counter)</li>
+                        <li>Each 3-component Enchantment: +1 spell (+1 counter)</li>
+                        <li>4-component Enchantment: Cast all spells (unlimited)</li>
+                    </ul>
+
+                    <div class="note" style="margin-top: 1rem;">
+                        Enchantments don't need to be cast - they're always active!
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-icon">📥</div>
-                    <h3>1. Collection Phase</h3>
-                    
+                    <h3>2. Collection Phase</h3>
+
                     <h4>Base Acquisition (choose one)</h4>
                     <ul>
                         <li>Draw 1 from The Vault, OR</li>
                         <li>Take 1 from The Exchange (replace it)</li>
                     </ul>
-                    
+
                     <h4>Power Generation (automatic)</h4>
                     <p>Draw additional components from The Vault based on your <span class="highlight">cast Conjurations</span></p>
                     <div class="note" style="margin-top: 1rem;">
@@ -218,16 +228,16 @@
 
                 <div class="card">
                     <div class="card-icon">🔄</div>
-                    <h3>2. Transform Phase</h3>
-                    
+                    <h3>3. Transform Phase</h3>
+
                     <p>Use <span class="highlight">cast Transfiguration spells</span> to exchange components</p>
-                    
+
                     <h4>For Each Cast Transfiguration</h4>
                     <ul>
                         <li>3-card: Discard 2 from hand → take 1 from Exchange</li>
                         <li>4+-card: Discard 1 from hand → take 1 from Exchange</li>
                     </ul>
-                    
+
                     <div class="note" style="margin-top: 1rem;">
                         Discarded components go to Used Components<br>
                         Immediately replace Exchange cards from The Vault
@@ -236,17 +246,17 @@
 
                 <div class="card">
                     <div class="card-icon">📚</div>
-                    <h3>3. Learn Phase</h3>
-                    
+                    <h3>4. Learn Phase</h3>
+
                     <p><span class="highlight">Return counters to your pool</span> - they now represent learning actions</p>
-                    
+
                     <h4>Learning Actions Available</h4>
                     <ul>
                         <li>Base: 1 learning action</li>
                         <li>Each 3-component Enchantment: +1 action</li>
                         <li>4-component Enchantment: Unlimited actions</li>
                     </ul>
-                    
+
                     <h4>Actions (each costs 1 learning action)</h4>
                     <ul>
                         <li><span class="highlight">LEARN:</span> Add new spell to Spellbook</li>
@@ -279,17 +289,26 @@
 
                 <div class="card">
                     <div class="card-icon">🎲</div>
-                    <h3>Counter Management</h3>
-                    
-                    <h4>Gaining Counters</h4>
-                    <ul>
-                        <li>Start: <span class="highlight">1 counter</span></li>
-                        <li>Learn 3-component Enchantment: <span class="highlight">+1 counter</span></li>
-                        <li>Learn 4-component Enchantment: <span class="highlight">Unlimited</span> (set aside counters)</li>
-                    </ul>
-                    
-                    <div class="note" style="margin-top: 1rem;">
-                        Keep your counters in front of you throughout the game
+                    <h3>Enchantments & Counters</h3>
+
+                    <p>When you learn an Enchantment, you permanently enhance your capabilities:</p>
+
+                    <div class="phase-box" style="margin-top: 1rem;">
+                        <h4>3-component Enchantment</h4>
+                        <ul>
+                            <li>Gain <span class="highlight">+1 counter</span></li>
+                            <li>Cast <span class="highlight">1 additional spell</span> per turn</li>
+                            <li>Perform <span class="highlight">1 additional learning action</span> per turn</li>
+                        </ul>
+                    </div>
+
+                    <div class="phase-box">
+                        <h4>4-component Enchantment</h4>
+                        <ul>
+                            <li><span class="highlight">Unlimited casting</span> - cast ALL your spells</li>
+                            <li><span class="highlight">Unlimited learning</span> - perform as many learning actions as you want</li>
+                            <li>(You no longer need to track counters)</li>
+                        </ul>
                     </div>
                 </div>
 
