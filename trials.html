@@ -22,6 +22,19 @@
     /* Page-specific styles only (shared styles are in archmage-theme.css) */
     .app-shell { padding-top: 1rem; padding-bottom: 2rem; }
 
+    /* Make spell type buttons equal width */
+    .spell-actions {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .spell-actions button {
+      width: 100%;
+      white-space: normal;
+      min-height: 48px;
+      padding: 0.75rem 1rem;
+    }
+
     .icon-btn {
       display: inline-flex;
       align-items: center;
@@ -43,6 +56,13 @@
       color: #ff5555;
       transform: translateY(-1px);
     }
+    .icon-btn svg {
+      display: block;
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+    }
 
     /* Spell card header layout */
     .spell-card .row.between {
@@ -60,6 +80,10 @@
 
     /* Ensure spell cards stack properly on mobile */
     @media (max-width: 520px) {
+      .spell-actions {
+        grid-template-columns: 1fr;
+      }
+
       .spell-card .row.between {
         flex-direction: row !important;
         justify-content: space-between;
