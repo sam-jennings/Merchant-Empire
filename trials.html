@@ -28,18 +28,53 @@
       justify-content: center;
       width: 48px;
       height: 48px;
+      min-width: 48px;
       border-radius: 10px;
-      border: 1px solid rgba(183, 148, 246, 0.25);
-      background: rgba(26, 11, 46, 0.35);
-      color: var(--text);
+      border: 2px solid rgba(239, 68, 68, 0.6);
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
       cursor: pointer;
       transition: all 0.2s ease;
+      flex-shrink: 0;
     }
     .icon-btn:hover {
-      border-color: rgba(246, 201, 74, 0.6);
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+      color: #ff5555;
       transform: translateY(-1px);
+    }
+
+    /* Spell card header layout */
+    .spell-card .row.between {
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    /* Better mobile input sizing */
+    input[type="number"],
+    select {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.75rem;
+    }
+
+    /* Ensure spell cards stack properly on mobile */
+    @media (max-width: 520px) {
+      .spell-card .row.between {
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .icon-btn {
+        margin-top: 0.25rem;
+      }
+
+      input[type="number"],
+      select {
+        padding: 0.9rem;
+        font-size: 1.05rem;
+      }
     }
   </style>
 </head>
