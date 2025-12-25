@@ -398,6 +398,39 @@ tr:hover {
 .flex-center { display: flex; justify-content: center; align-items: center; }
 .flex-wrap { flex-wrap: wrap; }
 
+.stack { display: flex; flex-direction: column; gap: 1rem; }
+
+.row { display: flex; gap: 1rem; align-items: center; }
+.row.wrap { flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field label { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--text-dim); letter-spacing: 0.06em; }
+
+.input-row { display: flex; gap: 0.75rem; }
+
+.divider { height: 1px; background: rgba(183, 148, 246, 0.18); margin: 1rem 0; }
+
+.muted { color: var(--text-dim); }
+.small { font-size: 0.95rem; }
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(183, 148, 246, 0.25);
+    background: rgba(26, 11, 46, 0.35);
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.spell-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.spell-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -573,6 +606,26 @@ header {
     /* Reduce hover transforms on mobile to avoid layout issues */
     .card:hover, .spell-card:hover, .wizard-card:hover, .trial-card:hover {
         transform: translateY(-2px);
+    }
+
+    /* Stack input rows and spell grids on mobile */
+    .input-row {
+        flex-direction: column;
+    }
+
+    .spell-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Medium mobile devices */
+@media (max-width: 520px) {
+    .input-row {
+        flex-direction: column;
+    }
+
+    .spell-grid {
+        grid-template-columns: 1fr;
     }
 }
 
