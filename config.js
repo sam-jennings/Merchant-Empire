@@ -43,13 +43,13 @@ const GameConfig = {
       emoji: '🔮',
       requiresElement: true,
       minSize: 3,
-      maxSize: 12,
+      maxSize: 15,
       warnUnder: 3,
-      warnOver: 9,
+      warnOver: 12,
       // Function that adds power when this spell is created
       contributeToDomains: (spell, domains, calculatePower) => {
         const elementKey = spell.element.toLowerCase();
-        const power = calculatePower(spell.size);
+        const power = GameConfig.calculateConjurationPower(spell.size);
         domains[elementKey] += power;
       }
     },
@@ -59,11 +59,11 @@ const GameConfig = {
       emoji: '🔄',
       requiresElement: false,
       minSize: 3,
-      maxSize: 12,
+      maxSize: 15,
       warnUnder: 3,
-      warnOver: 9,
+      warnOver: 12,
       contributeToDomains: (spell, domains, calculatePower) => {
-        const power = calculatePower(spell.size);
+        const power = GameConfig.calculateConjurationPower(spell.size);
         domains.transformation += power;
       }
     },
@@ -77,7 +77,7 @@ const GameConfig = {
       warnUnder: 3,
       warnOver: 4,
       contributeToDomains: (spell, domains, calculatePower) => {
-        const power = calculatePower(spell.size);
+        const power = GameConfig.calculateEnchantmentPower(spell.size);
         domains.enchantment += power;
         if (spell.size === 4) {
           domains.wilds += 1;
@@ -90,12 +90,12 @@ const GameConfig = {
       emoji: '✨',
       requiresElement: true,
       minSize: 3,
-      maxSize: 12,
+      maxSize: 15,
       warnUnder: 3,
-      warnOver: 9,
+      warnOver: 12,
       contributeToDomains: (spell, domains, calculatePower) => {
         const elementKey = spell.element.toLowerCase();
-        const power = calculatePower(spell.size);
+        const power = GameConfig.calculatePerfectTransmutationPower(spell.size);
         domains[elementKey] += power;
         domains.transformation += power;
         domains.wilds += 1;
@@ -104,24 +104,53 @@ const GameConfig = {
   ],
 
   // ============================================================================
-  // POWER CALCULATION FORMULA
+  // POWER CALCULATION FORMULAS (New Triangular Progression)
   // ============================================================================
-  // This function determines how spell size converts to power
+
+  // Conjuration & Transfiguration: 3 + triangular growth
+  // Size 3→4→5→6→7→8: 3→4→6→9→13→18
+  calculateConjurationPower: (size) => {
+    return 3 + ((size - 3) * (size - 2)) / 2;
+  },
+
+  // Perfect Transmutation: Higher base, same triangular growth
+  // Size 3→4→5→6→7→8: 5→7→10→14→19→25
+  calculatePerfectTransmutationPower: (size) => {
+    return 4 + ((size - 2) * (size - 1)) / 2;
+  },
+
+  // Enchantment: Fixed values for size 3-4 only
+  // Size 3→4: 6→15
+  calculateEnchantmentPower: (size) => {
+    return size === 3 ? 6 : 15;
+  },
+
+  // Legacy function for backward compatibility (uses Conjuration formula)
   calculatePower: (size) => {
-    if (size <= 4) return size * 1;
-    if (size <= 6) return Math.round(size * 1.5);
-    return size * 2;
+    return 3 + ((size - 3) * (size - 2)) / 2;
   },
 
   // Helper to get the formula description for display
-  getPowerBreakdown: (size, calculatePower) => {
-    const power = calculatePower(size);
-    if (size <= 4) return `${size} × 1 = ${power}`;
-    if (size <= 6) return `${size} × 1.5 = ${power}`;
-    return `${size} × 2 = ${power}`;
+  getPowerBreakdown: (size, spellType = 'conjuration') => {
+    let power;
+    switch(spellType) {
+      case 'conjuration':
+      case 'transfiguration':
+        power = 3 + ((size - 3) * (size - 2)) / 2;
+        break;
+      case 'perfect-transmutation':
+        power = 4 + ((size - 2) * (size - 1)) / 2;
+        break;
+      case 'enchantment':
+        power = size === 3 ? 6 : 15;
+        break;
+      default:
+        power = 3 + ((size - 3) * (size - 2)) / 2;
+    }
+    return `${power} power`;
   },
 
-  powerFormulaDescription: "3-4 components ×1, 5-6 components ×1.5, 7+ components ×2",
+  powerFormulaDescription: "Triangular progression: higher sizes grow exponentially",
 
   // ============================================================================
   // TRIALS

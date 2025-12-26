@@ -177,20 +177,27 @@
     const DOMAINS = safeObj(config.domains);
     const SPELL_TYPES = safeArray(config.spellTypes);
 
-    const calcPower = (size) => {
+    const calcPower = (size, spellType = 'conjuration') => {
+      // Use spell-type-specific power calculations
+      if (spellType === 'enchantment' && typeof config.calculateEnchantmentPower === 'function') {
+        return config.calculateEnchantmentPower(size);
+      }
+      if (spellType === 'perfect-transmutation' && typeof config.calculatePerfectTransmutationPower === 'function') {
+        return config.calculatePerfectTransmutationPower(size);
+      }
+      if ((spellType === 'conjuration' || spellType === 'transfiguration') && typeof config.calculateConjurationPower === 'function') {
+        return config.calculateConjurationPower(size);
+      }
+      // Fallback to legacy function
       if (typeof config.calculatePower === 'function') return config.calculatePower(size);
-      // Fallback: matches the current config.js behaviour
-      if (size <= 4) return size * 1;
-      if (size <= 6) return Math.round(size * 1.5);
-      return size * 2;
+      // Final fallback: triangular formula
+      return 3 + ((size - 3) * (size - 2)) / 2;
     };
 
-    const getPowerBreakdown = (size) => {
-      if (typeof config.getPowerBreakdown === 'function') return config.getPowerBreakdown(size, calcPower);
-      const power = calcPower(size);
-      if (size <= 4) return `${size} × 1 = ${power}`;
-      if (size <= 6) return `${size} × 1.5 = ${power}`;
-      return `${size} × 2 = ${power}`;
+    const getPowerBreakdown = (size, spellType = 'conjuration') => {
+      if (typeof config.getPowerBreakdown === 'function') return config.getPowerBreakdown(size, spellType);
+      const power = calcPower(size, spellType);
+      return `${power} power`;
     };
 
     const TEXT = {
@@ -362,7 +369,7 @@
                             <div>
                               <h5 style={{ marginBottom: '0.25rem' }}>{st?.emoji ? `${st.emoji} ` : ''}{st?.name || spell.type}</h5>
                               <div className="pill" title="Power breakdown">
-                                {getPowerBreakdown(spell.size)}
+                                {getPowerBreakdown(spell.size, spell.type)}
                               </div>
                             </div>
                             <button className="icon-btn" onClick={() => removeSpell(spell.id)} title="Remove spell">
