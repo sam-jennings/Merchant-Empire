@@ -31,21 +31,20 @@
                     <div class="card-icon">🎴</div>
                     <h3>Deck Selection</h3>
                     <ul>
-                        <li><span class="highlight">2-3 players:</span> 1-14 values (60 cards)</li>
-                        <li><span class="highlight">4-5 players:</span> 1-17 values (72 cards)</li>
-                        <li><span class="highlight">6-7 players:</span> 1-20 values (84 cards)</li>
+                        <li><span class="highlight">2–4 players:</span> Values 1–15 (62 cards)</li>
+                        <li><span class="highlight">5–7 players:</span> Values 1–20 (84 cards)</li>
                     </ul>
-                    <p style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-dim);">4 elements × values + 4 wilds</p>
+                    <p style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-dim);">4 energies × values + 2 or 4 wilds</p>
                 </div>
 
                 <div class="card">
                     <div class="card-icon">🃏</div>
                     <h3>Starting Components</h3>
                     <ul>
-                        <li><span class="highlight">2-3 players:</span> 7 cards each</li>
-                        <li><span class="highlight">4-7 players:</span> 6 cards each</li>
+                        <li><span class="highlight">All players:</span> 7 cards each</li>
                         <li><span class="highlight">The Exchange:</span> 5 cards face-up</li>
                         <li><span class="highlight">The Vault:</span> Remaining cards face-down</li>
+                        <li><span class="highlight">First player:</span> Determined randomly</li>
                     </ul>
                 </div>
 
@@ -104,10 +103,10 @@
                 <div class="card">
                     <div class="card-icon">🔮</div>
                     <h3>Conjuration</h3>
-                    <p><span class="accent-text">Same Element</span></p>
+                    <p><span class="accent-text">Same Energy</span></p>
                     
                     <h4>Requirements</h4>
-                    <p>3+ components of the same element</p>
+                    <p>3+ components of the same energy type</p>
                     
                     <h4>Benefit When Cast</h4>
                     <p><span class="highlight">Power Generation:</span> Draw extra components</p>
@@ -159,12 +158,12 @@
                 <div class="card">
                     <div class="card-icon">✨</div>
                     <h3>Perfect Transmutation</h3>
-                    <p><span class="accent-text">Sequential Same Element</span></p>
+                    <p><span class="accent-text">Sequential Same Energy</span></p>
                     
                     <h4>Requirements</h4>
-                    <p>3+ components in sequence of the same element</p>
+                    <p>3+ components in sequence of the same energy type</p>
                     <div class="note">
-                        E.g., Fire 8-9-10 (cannot loop)
+                        E.g., Void 8–9–10 (cannot loop)
                     </div>
                     
                     <h4>Benefit When Cast</h4>
@@ -189,7 +188,7 @@
                         </div>
                         <div class="phase-box">
                             <h4>Wild Cards</h4>
-                            <p>Can substitute for any element/value combination</p>
+                            <p>Can substitute for any energy type — but the value still counts for sequential spells</p>
                         </div>
                     </div>
                 </div>
@@ -202,14 +201,19 @@
                 <div class="card wide-card">
                     <div class="card-icon">🎯</div>
                     <h3>Turn Sequence</h3>
-                    <div class="phase-box">
-                        <h4>Before Turn Begins: Choose Which Spells to Cast</h4>
-                        <p>Place your counters on the spells you want to cast this turn</p>
-                        <ul style="margin-top: 0.5rem;">
-                            <li>Base: 1 spell (1 counter)</li>
-                            <li>Each 3-component Enchantment: +1 spell (+1 counter)</li>
-                            <li>4-component Enchantment: Cast all spells (unlimited)</li>
-                        </ul>
+                    <div class="grid" style="margin-top: 1rem;">
+                        <div class="phase-box">
+                            <h4>1. Collection</h4>
+                            <p>Draw 1 from The Vault <em>or</em> take 1 from The Exchange</p>
+                        </div>
+                        <div class="phase-box">
+                            <h4>2. Casting</h4>
+                            <p>Activate spells one at a time with counters — each effect resolves immediately</p>
+                        </div>
+                        <div class="phase-box">
+                            <h4>3. Learning</h4>
+                            <p>Counters refresh — use them to Learn, Empower, Reshape, or Unlearn</p>
+                        </div>
                     </div>
                 </div>
 
@@ -217,55 +221,61 @@
                     <div class="card-icon">📥</div>
                     <h3>1. Collection Phase</h3>
                     
-                    <h4>Base Acquisition (choose one)</h4>
+                    <h4>Choose one</h4>
                     <ul>
                         <li>Draw 1 from The Vault, OR</li>
-                        <li>Take 1 from The Exchange (replace it)</li>
+                        <li>Take 1 from The Exchange (immediately replace from The Vault)</li>
                     </ul>
-                    
-                    <h4>Power Generation (automatic)</h4>
-                    <p>Draw additional components from The Vault based on your <span class="highlight">cast Conjurations</span></p>
+
                     <div class="note" style="margin-top: 1rem;">
-                        Example: Cast 6-card Conjuration = 1 base + 2 bonus = 3 total components
+                        That's it — no extra draws here. Conjuration bonus draws happen during the Casting Phase when you cast the spell.
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-icon">🔄</div>
-                    <h3>2. Transform Phase</h3>
-                    
-                    <p>Use <span class="highlight">cast Transfiguration spells</span> to exchange components</p>
-                    
-                    <h4>For Each Cast Transfiguration</h4>
+                    <div class="card-icon">⚡</div>
+                    <h3>2. Casting Phase</h3>
+
+                    <p>Activate spells by placing <span class="highlight">1 counter per spell</span>. Effects resolve <strong>immediately</strong> — one spell at a time.</p>
+
+                    <h4>Casting Conjuration</h4>
                     <ul>
-                        <li>3-card: Discard 2 from hand → take 1 from Exchange</li>
-                        <li>4+-card: Discard 1 from hand → take 1 from Exchange</li>
+                        <li>3–5 cards: draw <span class="highlight">+1</span> from The Vault</li>
+                        <li>6+ cards: draw <span class="highlight">+2</span> from The Vault</li>
                     </ul>
-                    
+
+                    <h4>Casting Transfiguration</h4>
+                    <ul>
+                        <li>3-card: discard 2 from hand → take 1 from Exchange</li>
+                        <li>4+-card: discard 1 from hand → take 1 from Exchange</li>
+                    </ul>
+                    <p style="margin-top:0.5rem; font-size:0.9rem; color:var(--text-dim);">Discarded components go to Used Components. Replace Exchange card from Vault immediately.</p>
+
                     <div class="note" style="margin-top: 1rem;">
-                        Discarded components go to Used Components<br>
-                        Immediately replace Exchange cards from The Vault
+                        <strong>Can't resolve = can't cast.</strong> If you lack the cards to complete a Transfiguration exchange, you cannot cast that spell this turn.
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-icon">📚</div>
                     <h3>3. Learn Phase</h3>
-                    
-                    <p><span class="highlight">Return counters to your pool</span> - they now represent learning actions</p>
-                    
-                    <h4>Learning Actions Available</h4>
+
+                    <p><span class="highlight">Counters refresh</span> — all counters return to your pool and now represent learning actions.</p>
+
+                    <h4>Actions available</h4>
                     <ul>
-                        <li>Base: 1 learning action</li>
-                        <li>Each 3-component Enchantment: +1 action</li>
-                        <li>4-component Enchantment: Unlimited actions</li>
+                        <li>Base: 1 action &nbsp;|&nbsp; Each 3-card Enchantment: +1 &nbsp;|&nbsp; 4-card Enchantment: unlimited</li>
                     </ul>
-                    
-                    <h4>Actions (each costs 1 learning action)</h4>
+
+                    <h4>Actions (1 counter each)</h4>
                     <ul>
-                        <li><span class="highlight">LEARN:</span> Add new spell to Spellbook</li>
-                        <li><span class="highlight">EMPOWER:</span> Add components to existing spell</li>
-                        <li><span class="highlight">RESHAPE:</span> Reorganize all your spells</li>
+                        <li><span class="highlight">LEARN:</span> Place a valid spell from hand into Spellbook
+                            <br><span style="font-size:0.9rem;color:var(--text-dim);">3-card Enchantment → gain +1 counter now; 4-card → unlimited capacity now</span></li>
+                        <li><span class="highlight">EMPOWER:</span> Add components from hand to an existing spell (can change its spell type)</li>
+                        <li><span class="highlight">RESHAPE:</span> Break down and rebuild any spells with the same components — all must remain valid
+                            <br><span style="font-size:0.9rem;color:var(--text-dim);">⚠ Breaking a 3-card Enchantment costs 1 counter; breaking a 4-card Enchantment removes unlimited capacity</span></li>
+                        <li><span class="highlight">UNLEARN:</span> Dissolve one spell — components return to hand but cannot be learned again until next turn
+                            <br><span style="font-size:0.9rem;color:var(--text-dim);">⚠ Same counter penalties as Reshape if the spell was an Enchantment</span></li>
                     </ul>
                 </div>
             </div>
@@ -286,7 +296,7 @@
                         <div class="phase-box">
                             <h4>During Learn Phase</h4>
                             <p>Same counters represent <strong>learning actions available</strong></p>
-                            <p style="margin-top: 0.5rem;">Use them to Learn/Empower/Reshape</p>
+                            <p style="margin-top: 0.5rem;">Use them to Learn/Empower/Reshape/Unlearn</p>
                         </div>
                     </div>
                 </div>
@@ -300,6 +310,12 @@
                         <li>Start: <span class="highlight">1 counter</span></li>
                         <li>Learn 3-component Enchantment: <span class="highlight">+1 counter</span></li>
                         <li>Learn 4-component Enchantment: <span class="highlight">Unlimited</span> (set aside counters)</li>
+                    </ul>
+
+                    <h4>Losing Counters</h4>
+                    <ul>
+                        <li>Break/Unlearn 3-card Enchantment: <span class="highlight">−1 counter</span></li>
+                        <li>Break/Unlearn 4-card Enchantment: <span class="highlight">lose unlimited capacity</span></li>
                     </ul>
                     
                     <div class="note" style="margin-top: 1rem;">
@@ -385,8 +401,8 @@
                         <li>Ignore all Conjuration bonuses</li>
                     </ul>
                     
-                    <h4>Transform Phase</h4>
-                    <p><span class="highlight">No transformations</span> - The Exchange has collapsed</p>
+                    <h4>Casting Phase</h4>
+                    <p><span class="highlight">No spell effects</span> — casting is suspended; The Vault and Exchange are gone</p>
                     
                     <h4>Learn Phase</h4>
                     <p><span class="highlight">Unchanged</span> - use learning actions normally</p>
@@ -403,7 +419,7 @@
                         </div>
                         <div class="phase-box">
                             <h4>❌ Transfigurations</h4>
-                            <p><strong>No transformations</strong> - The Exchange has collapsed; there's nowhere to perform careful transformations</p>
+                            <p><strong>No transformations</strong> — The Exchange has collapsed; there's nowhere to perform careful exchanges</p>
                         </div>
                         <div class="phase-box">
                             <h4>✅ Enchantments</h4>
@@ -508,7 +524,7 @@
                     
                     <ul>
                         <li><span class="highlight">Perfect Transmutations</span> score the highest per component</li>
-                        <li><span class="highlight">4-component Enchantments</span> have a huge scoring spike (14 points)</li>
+                        <li><span class="highlight">4-component Enchantments</span> have a huge scoring spike (15 points)</li>
                         <li>Longer spells score <span class="highlight">exponentially better</span> than multiple short ones</li>
                         <li>A single 7-component spell often scores more than two 4-component spells</li>
                     </ul>
