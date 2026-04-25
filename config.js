@@ -14,18 +14,18 @@ const GameConfig = {
   // ELEMENTS/DOMAINS
   // ============================================================================
   elements: [
-    { id: 'earth', name: 'Earth', symbol: '♠' },
-    { id: 'fire', name: 'Fire', symbol: '♥' },
-    { id: 'water', name: 'Water', symbol: '♦' },
-    { id: 'air', name: 'Air', symbol: '♣' }
+    { id: 'earth', name: 'Radiance', symbol: '♠' },
+    { id: 'fire', name: 'Void', symbol: '♥' },
+    { id: 'water', name: 'Flux', symbol: '♦' },
+    { id: 'air', name: 'Aether', symbol: '♣' }
   ],
 
   domains: {
     // Regular domains
-    earth: { name: 'Elemental Power (♠ Earth)', category: 'elemental' },
-    fire: { name: 'Elemental Power (♥ Fire)', category: 'elemental' },
-    water: { name: 'Elemental Power (♦ Water)', category: 'elemental' },
-    air: { name: 'Elemental Power (♣ Air)', category: 'elemental' },
+    earth: { name: 'Energy Power (♠ Radiance)', category: 'energy' },
+    fire: { name: 'Energy Power (♥ Void)', category: 'energy' },
+    water: { name: 'Energy Power (♦ Flux)', category: 'energy' },
+    air: { name: 'Energy Power (♣ Aether)', category: 'energy' },
     transformation: { name: 'Transformation Power', category: 'special' },
     enchantment: { name: 'Enchantment Power', category: 'special' },
     
@@ -129,8 +129,8 @@ const GameConfig = {
   trials: [
     {
       id: 'elemental-purity',
-      name: 'Elemental Purity Trial',
-      description: 'Power from EXACTLY ONE elemental domain',
+      name: 'Energy Purity Trial',
+      description: 'Power from EXACTLY ONE energy domain',
       icon: 'Zap',
       // Function that returns available domains based on current allocation
       getAvailableDomains: (currentSources) => {
@@ -152,8 +152,8 @@ const GameConfig = {
     },
     {
       id: 'elemental-harmony',
-      name: 'Elemental Harmony Trial',
-      description: 'Power from 2+ DIFFERENT elemental domains',
+      name: 'Energy Harmony Trial',
+      description: 'Power from 2+ DIFFERENT energy domains',
       icon: 'Users',
       getAvailableDomains: (currentSources) => {
         return ['earth', 'fire', 'water', 'air'];
@@ -223,6 +223,24 @@ const GameConfig = {
       },
       maxSources: 6,
       usesBreadthTiebreaker: true
+    },
+    {
+      id: 'complete-mastery',
+      name: 'Complete Mastery Trial',
+      description: 'Power from ALL THREE domain types (at least one element + Transformation + Enchantment)',
+      icon: 'Star',
+      minPlayers: 5,
+      getAvailableDomains: (currentSources) => {
+        return ['earth', 'fire', 'water', 'air', 'transformation', 'enchantment'];
+      },
+      isValidAllocation: (domainsUsed, elementalDomainsUsed) => {
+        const hasElement = elementalDomainsUsed.length >= 1;
+        const hasTransformation = domainsUsed.includes('transformation');
+        const hasEnchantment = domainsUsed.includes('enchantment');
+        return hasElement && hasTransformation && hasEnchantment;
+      },
+      maxSources: 6,
+      usesBreadthTiebreaker: true
     }
   ],
 
@@ -231,29 +249,64 @@ const GameConfig = {
   // ============================================================================
   recognitionPoints: {
     2: {
-      'elemental-purity': 6,
-      'elemental-harmony': 4,
-      'transformation': 7,
-      'enchantment': 4,
-      'focused-power': 6,
-      'universal-power': 3
+      'elemental-purity': { 1: 6 },
+      'elemental-harmony': { 1: 4 },
+      'transformation': { 1: 7 },
+      'enchantment': { 1: 4 },
+      'focused-power': { 1: 6 },
+      'universal-power': { 1: 3 }
     },
     3: {
-      'elemental-purity': 8,
-      'elemental-harmony': 5,
-      'transformation': 9,
-      'enchantment': 5,
-      'focused-power': 7,
-      'universal-power': 4
+      'elemental-purity': { 1: 8 },
+      'elemental-harmony': { 1: 5 },
+      'transformation': { 1: 9 },
+      'enchantment': { 1: 5 },
+      'focused-power': { 1: 7 },
+      'universal-power': { 1: 4 }
     },
     4: {
-      'elemental-purity': 8,
-      'elemental-harmony': 6,
-      'transformation': 9,
-      'enchantment': 6,
-      'focused-power': 7,
-      'universal-power': 5
+      'elemental-purity': { 1: 8 },
+      'elemental-harmony': { 1: 6 },
+      'transformation': { 1: 9 },
+      'enchantment': { 1: 6 },
+      'focused-power': { 1: 7 },
+      'universal-power': { 1: 5 }
+    },
+    5: {
+      'elemental-purity': { 1: 8 },
+      'elemental-harmony': { 1: 6 },
+      'transformation': { 1: 9 },
+      'enchantment': { 1: 6 },
+      'focused-power': { 1: 7 },
+      'universal-power': { 1: 5 },
+      'complete-mastery': { 1: 6 }
+    },
+    6: {
+      'elemental-purity': { 1: 7, 2: 3 },
+      'elemental-harmony': { 1: 6, 2: 2 },
+      'transformation': { 1: 8, 2: 3 },
+      'enchantment': { 1: 6, 2: 2 },
+      'focused-power': { 1: 7, 2: 3 },
+      'universal-power': { 1: 5, 2: 2 },
+      'complete-mastery': { 1: 6, 2: 2 }
+    },
+    7: {
+      'elemental-purity': { 1: 7, 2: 4 },
+      'elemental-harmony': { 1: 6, 2: 3 },
+      'transformation': { 1: 8, 2: 4 },
+      'enchantment': { 1: 6, 2: 3 },
+      'focused-power': { 1: 7, 2: 4 },
+      'universal-power': { 1: 5, 2: 3 },
+      'complete-mastery': { 1: 6, 2: 3 }
     }
+  },
+
+  // Recognition Points by Spell Size (for Simple Scoring mode)
+  recognitionPointsBySpellSize: {
+    conjuration: { 3: 4, 4: 6, 5: 9, 6: 13, 7: 18, 8: 24, 9: 31, 10: 39, 11: 48, 12: 58 },
+    transfiguration: { 3: 5, 4: 8, 5: 12, 6: 17, 7: 23, 8: 30, 9: 38, 10: 47, 11: 57, 12: 68 },
+    enchantment: { 3: 6, 4: 14 },
+    'perfect-transmutation': { 3: 7, 4: 11, 5: 16, 6: 23, 7: 32, 8: 42, 9: 54, 10: 68, 11: 84, 12: 102 }
   },
 
   // ============================================================================

@@ -19,61 +19,145 @@
   <script src="config.js"></script>
 
   <style>
-    /* Small, page-specific helpers (kept minimal; main theme is in archmage-theme.css) */
+    /* Page-specific styles only (shared styles are in archmage-theme.css) */
     .app-shell { padding-top: 1rem; padding-bottom: 2rem; }
 
-    .stack { display: flex; flex-direction: column; gap: 1rem; }
-
-    .row { display: flex; gap: 1rem; align-items: center; }
-    .row.wrap { flex-wrap: wrap; }
-    .row.between { justify-content: space-between; }
-
-    .field { display: flex; flex-direction: column; gap: 0.35rem; }
-    .field label { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--text-dim); letter-spacing: 0.06em; }
-
-    .input-row { display: flex; gap: 0.75rem; }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.65rem;
-      border-radius: 999px;
-      border: 1px solid rgba(183, 148, 246, 0.25);
-      background: rgba(26, 11, 46, 0.35);
-      color: var(--text-dim);
-      font-size: 0.95rem;
-      white-space: nowrap;
+    /* Make spell type buttons equal width */
+    .spell-actions {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .spell-actions button {
+      width: 100%;
+      white-space: normal;
+      min-height: 48px;
+      padding: 0.75rem 1rem;
     }
 
     .icon-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 42px;
-      height: 42px;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
       border-radius: 10px;
-      border: 1px solid rgba(183, 148, 246, 0.25);
-      background: rgba(26, 11, 46, 0.35);
-      color: var(--text);
+      border: 2px solid rgba(239, 68, 68, 0.6);
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      padding: 0;
     }
-    .icon-btn:hover { border-color: rgba(246, 201, 74, 0.6); transform: translateY(-1px); }
+    .icon-btn:hover {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+      color: #ff5555;
+      transform: translateY(-1px);
+    }
+    .icon-btn svg {
+      display: block !important;
+      width: 24px !important;
+      height: 24px !important;
+      min-width: 24px !important;
+      min-height: 24px !important;
+      stroke: currentColor !important;
+      stroke-width: 2.5 !important;
+      fill: none !important;
+      color: inherit !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
 
-    .spell-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    /* Spell card header layout */
+    .spell-card .row.between {
+      gap: 1rem;
+      align-items: flex-start;
+    }
 
-    .spell-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    /* Better mobile input sizing */
+    input[type="number"],
+    select {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.75rem;
+    }
+
+    /* Voting phase mobile layout */
+    @media (max-width: 768px) {
+      .voting-two-column {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Ensure wizard selector buttons wrap nicely */
+      .wizard-selector-buttons {
+        gap: 0.5rem !important;
+      }
+
+      /* Make cards more compact on tablet */
+      .card {
+        padding: 1rem !important;
+      }
+    }
+
+    /* Ensure spell cards stack properly on mobile */
     @media (max-width: 520px) {
-      .input-row { flex-direction: column; }
-      .spell-grid { grid-template-columns: 1fr; }
+      .spell-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .spell-card .row.between {
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem !important;
+      }
+
+      .icon-btn {
+        margin-top: 0;
+        flex-shrink: 0;
+      }
+
+      input[type="number"],
+      select {
+        padding: 0.9rem;
+        font-size: 1.05rem;
+      }
+
+      button {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+      }
+
+      /* Mobile: make domain power reference table more readable */
+      .reference-table {
+        font-size: 0.75rem !important;
+      }
+
+      .reference-table th,
+      .reference-table td {
+        padding: 0.5rem 0.25rem !important;
+        font-size: 0.7rem !important;
+      }
+
+      /* Compact domain grids on mobile */
+      .domain-grid {
+        gap: 0.5rem !important;
+      }
+
+      /* Make remaining power display more compact on mobile */
+      .highlight {
+        font-size: 1.25rem !important;
+      }
+
+      /* Ensure trial selection buttons are touch-friendly */
+      .trial-selection-btn {
+        padding: 0.875rem !important;
+        min-height: 60px;
+      }
     }
-
-    .divider { height: 1px; background: rgba(183, 148, 246, 0.18); margin: 1rem 0; }
-
-    .muted { color: var(--text-dim); }
-    .small { font-size: 0.95rem; }
-
-    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .table-wrap table { min-width: 560px; }
   </style>
 </head>
 <body>
@@ -151,9 +235,21 @@
       </svg>
     );
 
-    const TrashIcon = ({ size = 18 }) => (
-      <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    const TrashIcon = ({ size = 24 }) => (
+      <svg
+        width={size}
+        height={size}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        style={{ minWidth: `${size}px`, minHeight: `${size}px` }}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2.5}
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+        />
       </svg>
     );
 
@@ -422,7 +518,7 @@
     // -------------------------------------------------------------------------
     // Setup Phase
     // -------------------------------------------------------------------------
-    function SetupPhase({ wizards, setWizards }) {
+    function SetupPhase({ wizards, setWizards, startTrial }) {
       const [newWizardName, setNewWizardName] = useState('');
 
       const addWizard = () => {
@@ -491,7 +587,12 @@
 
           {wizards.length >= 2 && (
             <div style={{ marginTop: '1.5rem' }}>
-              <button className={canStart ? 'btn-success' : 'btn-secondary'} disabled={!canStart} style={{ width: '100%', opacity: canStart ? 1 : 0.7 }}>
+              <button
+                className={canStart ? 'btn-success' : 'btn-secondary'}
+                disabled={!canStart}
+                onClick={() => canStart && startTrial()}
+                style={{ width: '100%', opacity: canStart ? 1 : 0.7 }}
+              >
                 {canStart ? TEXT.startGameButton : TEXT.startGameRequirement}
               </button>
               {!canStart && (
@@ -506,22 +607,574 @@
     }
 
     // -------------------------------------------------------------------------
-    // Placeholder phases (kept simple but mobile-friendly)
+    // Voting/Allocation Phase
     // -------------------------------------------------------------------------
-    function VotingPhase() {
+    function VotingPhase({ wizards, onFinishVoting }) {
+      const playerCount = wizards.length;
+      const availableTrials = config.trials.filter(t => !t.minPlayers || t.minPlayers <= playerCount);
+      const recognitionTable = config.recognitionPoints[playerCount] || {};
+
+      const [allocations, setAllocations] = useState(() => {
+        const initial = {};
+        wizards.forEach(w => {
+          initial[w.id] = {};
+          availableTrials.forEach(trial => {
+            initial[w.id][trial.id] = {};
+          });
+        });
+        return initial;
+      });
+      const [locked, setLocked] = useState({});
+      const [selectedWizard, setSelectedWizard] = useState(wizards[0]?.id);
+      const [selectedTrial, setSelectedTrial] = useState(null);
+
+      const wizard = wizards.find(w => w.id === selectedWizard);
+      if (!wizard) return null;
+
+      const wizardAllocations = allocations[wizard.id] || {};
+
+      // Calculate allocated and remaining power for each domain
+      const getAllocatedByDomain = () => {
+        const allocated = {};
+        Object.keys(wizard.domains).forEach(d => { allocated[d] = 0; });
+
+        Object.values(wizardAllocations).forEach(trialAlloc => {
+          Object.entries(trialAlloc).forEach(([domain, amount]) => {
+            allocated[domain] = (allocated[domain] || 0) + amount;
+          });
+        });
+        return allocated;
+      };
+
+      const allocatedByDomain = getAllocatedByDomain();
+      const remainingByDomain = {};
+      Object.entries(wizard.domains).forEach(([domain, capacity]) => {
+        remainingByDomain[domain] = capacity - (allocatedByDomain[domain] || 0);
+      });
+
+      const totalRemaining = Object.values(remainingByDomain).reduce((sum, v) => sum + v, 0);
+
+      const updateAllocation = (trialId, domain, value) => {
+        const val = Math.max(0, parseInt(value) || 0);
+        setAllocations(prev => ({
+          ...prev,
+          [wizard.id]: {
+            ...prev[wizard.id],
+            [trialId]: {
+              ...prev[wizard.id][trialId],
+              [domain]: val
+            }
+          }
+        }));
+      };
+
+      const clearTrial = (trialId) => {
+        setAllocations(prev => ({
+          ...prev,
+          [wizard.id]: {
+            ...prev[wizard.id],
+            [trialId]: {}
+          }
+        }));
+      };
+
+      const toggleLock = () => {
+        setLocked(prev => ({ ...prev, [wizard.id]: !prev[wizard.id] }));
+      };
+
+      const allLocked = wizards.every(w => locked[w.id]);
+
+      // Get validation feedback for trial
+      const getValidationFeedback = (trial, trialAlloc) => {
+        const domainsUsed = Object.keys(trialAlloc).filter(d => (trialAlloc[d] || 0) > 0 && d !== 'wilds');
+        const elementalDomains = ['earth', 'fire', 'water', 'air'];
+        const elementalDomainsUsed = domainsUsed.filter(d => elementalDomains.includes(d));
+        const total = Object.values(trialAlloc).reduce((sum, v) => sum + v, 0);
+
+        if (total === 0) return null;
+
+        const isValid = trial.isValidAllocation(domainsUsed, elementalDomainsUsed);
+
+        if (isValid) {
+          return { type: 'valid', message: `✓ Valid allocation • Total Power: ${total}` };
+        } else {
+          return { type: 'error', message: `✗ Invalid: This allocation doesn't meet the trial requirements` };
+        }
+      };
+
       return (
-        <div className="card">
-          <h2>Power Allocation</h2>
-          <p className="muted">Voting phase UI not implemented in this build.</p>
+        <div className="stack">
+          <div className="card">
+            <div className="row between wrap" style={{ marginBottom: '1rem' }}>
+              <h2>Power Allocation</h2>
+              {allLocked && (
+                <button
+                  className="btn-success"
+                  onClick={() => onFinishVoting(allocations)}
+                  style={{ padding: '0.75rem 1.5rem' }}
+                >
+                  🏆 Reveal Results
+                </button>
+              )}
+            </div>
+            <p className="subtitle">Secretly allocate your domain power to the trials</p>
+
+            {/* Wizard selector buttons */}
+            <div className="wizard-selector-buttons" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+              {wizards.map(w => (
+                <button
+                  key={w.id}
+                  onClick={() => setSelectedWizard(w.id)}
+                  className={w.id === selectedWizard ? 'btn-primary' : locked[w.id] ? 'btn-success' : 'btn-secondary'}
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                >
+                  {w.name} {locked[w.id] ? '🔒' : ''}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Wizard Power Reference Table */}
+          <div className="card" style={{ overflowX: 'auto' }}>
+            <h4>Wizard Domain Power Reference</h4>
+            <table className="reference-table" style={{ width: '100%', marginTop: '1rem', minWidth: '600px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                  <th style={{ padding: '0.75rem', textAlign: 'left' }}>Wizard</th>
+                  {Object.entries(DOMAIN_NAMES).map(([key, name]) => (
+                    <th key={key} style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.85rem' }}>{name}</th>
+                  ))}
+                  <th style={{ padding: '0.75rem', textAlign: 'center' }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {wizards.map(w => (
+                  <tr
+                    key={w.id}
+                    style={{
+                      borderBottom: '1px solid var(--border)',
+                      background: w.id === selectedWizard ? 'var(--card-bg-hover)' : 'transparent'
+                    }}
+                  >
+                    <td style={{ padding: '0.75rem', fontWeight: 600 }}>
+                      {w.name} {locked[w.id] && '🔒'}
+                    </td>
+                    {Object.keys(DOMAIN_NAMES).map(domainKey => (
+                      <td key={domainKey} style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        {w.domains[domainKey] || 0}
+                      </td>
+                    ))}
+                    <td style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 700 }}>
+                      {Object.values(w.domains).reduce((sum, v) => sum + v, 0)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Current Wizard Allocation */}
+          <div className="grid voting-two-column" style={{ gridTemplateColumns: locked[wizard.id] ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+            {/* Left column: Remaining Power & Trial Selection */}
+            <div className="stack">
+              {locked[wizard.id] && (
+                <div className="warning-box">
+                  <strong>Locked:</strong> Unlock to make changes
+                </div>
+              )}
+
+              {/* Remaining Power */}
+              <div className="card">
+                <h4>Remaining Power</h4>
+                <div className="domain-grid" style={{ marginTop: '0.75rem' }}>
+                  {Object.entries(wizard.domains).map(([domain, capacity]) => {
+                    const remaining = remainingByDomain[domain] || 0;
+                    return (
+                      <div key={domain} className="domain-item">
+                        <div style={{ textAlign: 'center' }}>
+                          <div className="small muted">{DOMAIN_NAMES[domain] || domain}</div>
+                          <div className="highlight" style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.25rem' }}>
+                            <span style={{ color: remaining === 0 ? 'var(--text-dim)' : undefined }}>
+                              {remaining}
+                            </span>
+                            <span className="small muted"> / {capacity}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Lock/Unlock Button */}
+              <button
+                className={locked[wizard.id] ? 'btn-danger' : 'btn-success'}
+                onClick={toggleLock}
+                style={{ width: '100%', padding: '1rem' }}
+              >
+                {locked[wizard.id] ? '🔓 Unlock Allocations' : '🔒 Lock In Allocations'}
+              </button>
+
+              {/* Trial Selection */}
+              {!locked[wizard.id] && (
+                <div className="card">
+                  <h4>Select Trial to Allocate Power</h4>
+                  <div className="stack" style={{ marginTop: '1rem' }}>
+                    {availableTrials.map(trial => {
+                      const trialAlloc = wizardAllocations[trial.id] || {};
+                      const trialTotal = Object.values(trialAlloc).reduce((sum, v) => sum + v, 0);
+                      const feedback = getValidationFeedback(trial, trialAlloc);
+                      const rp = recognitionTable[trial.id] || {};
+                      const rpText = playerCount >= 6
+                        ? `${rp[1] || 0}/${rp[2] || 0} RP`
+                        : `${rp[1] || 0} RP`;
+
+                      return (
+                        <button
+                          key={trial.id}
+                          onClick={() => setSelectedTrial(trial.id)}
+                          className={`trial-selection-btn ${selectedTrial === trial.id ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{
+                            width: '100%',
+                            textAlign: 'left',
+                            padding: '1rem',
+                            border: feedback?.type === 'valid' ? '2px solid rgba(34, 197, 94, 0.5)' : undefined,
+                            background: feedback?.type === 'valid' ? 'rgba(34, 197, 94, 0.1)' : undefined
+                          }}
+                        >
+                          <div className="row between" style={{ marginBottom: '0.5rem' }}>
+                            <strong>{trial.name}</strong>
+                            <span className="pill" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}>{rpText}</span>
+                          </div>
+                          <div className="small muted">{trial.description}</div>
+                          {trialTotal > 0 && (
+                            <div style={{ marginTop: '0.5rem' }}>
+                              <span className="highlight" style={{ fontSize: '0.9rem' }}>
+                                Total: {trialTotal}
+                              </span>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {totalRemaining > 0 && !locked[wizard.id] && (
+                <div className="note">
+                  <strong>Note:</strong> You have {totalRemaining} unallocated power remaining
+                </div>
+              )}
+            </div>
+
+            {/* Right column: Trial Allocation Details */}
+            {selectedTrial && !locked[wizard.id] && (
+              <div className="card">
+                {(() => {
+                  const trial = availableTrials.find(t => t.id === selectedTrial);
+                  if (!trial) return null;
+
+                  const trialAlloc = wizardAllocations[trial.id] || {};
+                  const feedback = getValidationFeedback(trial, trialAlloc);
+
+                  return (
+                    <>
+                      <div className="row between wrap">
+                        <h4>{trial.name}</h4>
+                        <button
+                          className="btn-danger"
+                          onClick={() => clearTrial(trial.id)}
+                          style={{ minWidth: '80px' }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+
+                      <p className="small muted" style={{ marginTop: '0.5rem' }}>{trial.description}</p>
+
+                      {feedback && (
+                        <div
+                          className={feedback.type === 'valid' ? 'info-box' : 'warning-box'}
+                          style={{
+                            marginTop: '1rem',
+                            background: feedback.type === 'valid' ? 'rgba(34, 197, 94, 0.15)' : undefined,
+                            border: feedback.type === 'valid' ? '1px solid rgba(34, 197, 94, 0.4)' : undefined
+                          }}
+                        >
+                          {feedback.message}
+                        </div>
+                      )}
+
+                      <div className="domain-grid" style={{ marginTop: '1rem' }}>
+                        {Object.entries(wizard.domains).map(([domain, capacity]) => {
+                          const currentAlloc = trialAlloc[domain] || 0;
+                          const remaining = remainingByDomain[domain] || 0;
+                          const maxAllowable = remaining + currentAlloc;
+                          const isWild = domain === 'wilds';
+                          const hasRegularPower = Object.entries(trialAlloc).some(([d, v]) => d !== 'wilds' && v > 0);
+
+                          // Check if this domain is available for this trial
+                          const currentSources = Object.keys(trialAlloc).filter(d => (trialAlloc[d] || 0) > 0 && d !== 'wilds');
+                          const availableDomains = trial.getAvailableDomains(currentSources);
+                          const isDomainAvailable = isWild || availableDomains.includes(domain);
+                          const isDisabled = (isWild && !hasRegularPower) || !isDomainAvailable;
+
+                          return (
+                            <div key={domain} className="domain-item" style={{ opacity: isDomainAvailable || isWild ? 1 : 0.4 }}>
+                              <div className="field">
+                                <label className="small" style={{ opacity: isDomainAvailable || isWild ? 1 : 0.6 }}>
+                                  {DOMAIN_NAMES[domain] || domain}
+                                  {!isDomainAvailable && !isWild && ' (not available)'}
+                                </label>
+                                {isWild && !hasRegularPower && (
+                                  <p className="small muted" style={{ fontSize: '0.7rem', marginBottom: '0.25rem', fontStyle: 'italic' }}>
+                                    Add regular power first
+                                  </p>
+                                )}
+                                {!isWild && !isDomainAvailable && (
+                                  <p className="small muted" style={{ fontSize: '0.7rem', marginBottom: '0.25rem', fontStyle: 'italic' }}>
+                                    Not allowed for this trial
+                                  </p>
+                                )}
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={maxAllowable}
+                                  value={currentAlloc}
+                                  onChange={(e) => updateAllocation(trial.id, domain, e.target.value)}
+                                  disabled={isDisabled}
+                                  title={
+                                    isWild && !hasRegularPower
+                                      ? 'Add regular power first'
+                                      : !isDomainAvailable
+                                      ? 'This domain cannot be used for this trial'
+                                      : ''
+                                  }
+                                  style={{
+                                    opacity: isDisabled ? 0.5 : 1,
+                                    cursor: isDisabled ? 'not-allowed' : 'text',
+                                    background: isDisabled ? 'var(--card-bg)' : undefined
+                                  }}
+                                />
+                                <div className="small muted" style={{ marginTop: '0.25rem', fontSize: '0.75rem' }}>
+                                  Available: {maxAllowable}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
         </div>
       );
     }
 
-    function ResultsPhase() {
+    // -------------------------------------------------------------------------
+    // Results Phase
+    // -------------------------------------------------------------------------
+    function ResultsPhase({ wizards, allocations }) {
+      const playerCount = wizards.length;
+      const availableTrials = config.trials.filter(t => !t.minPlayers || t.minPlayers <= playerCount);
+      const recognitionTable = config.recognitionPoints[playerCount] || {};
+
+      // Calculate results for each trial
+      const calculateTrialResults = (trial) => {
+        const attempts = [];
+
+        wizards.forEach(wizard => {
+          const wizardAlloc = allocations[wizard.id]?.[trial.id] || {};
+          const domainsUsed = Object.keys(wizardAlloc).filter(d => (wizardAlloc[d] || 0) > 0 && d !== 'wilds');
+          const elementalDomains = ['earth', 'fire', 'water', 'air'];
+          const elementalDomainsUsed = domainsUsed.filter(d => elementalDomains.includes(d));
+
+          const isValid = trial.isValidAllocation(domainsUsed, elementalDomainsUsed);
+          if (!isValid) return;
+
+          // Calculate total power (including wild magic)
+          const totalPower = Object.values(wizardAlloc).reduce((sum, v) => sum + v, 0);
+          if (totalPower === 0) return;
+
+          // Calculate tie-breakers
+          const powerFromUsedDomains = domainsUsed.reduce((sum, d) => sum + (wizardAlloc[d] || 0), 0);
+          const capacityOfUsedDomains = domainsUsed.reduce((sum, d) => sum + (wizard.domains[d] || 0), 0);
+          const utilization = capacityOfUsedDomains > 0 ? powerFromUsedDomains / capacityOfUsedDomains : 0;
+
+          const totalCapacity = Object.values(wizard.domains).reduce((sum, v) => sum + v, 0);
+          const focus = totalCapacity > 0 ? powerFromUsedDomains / totalCapacity : 0;
+
+          const breadth = domainsUsed.length;
+
+          attempts.push({
+            wizardId: wizard.id,
+            wizardName: wizard.name,
+            totalPower,
+            utilization,
+            focus,
+            breadth,
+            allocation: wizardAlloc,
+            domainsUsed
+          });
+        });
+
+        // Sort by: totalPower desc, utilization desc, focus desc, breadth desc
+        attempts.sort((a, b) => {
+          if (b.totalPower !== a.totalPower) return b.totalPower - a.totalPower;
+          if (b.utilization !== a.utilization) return b.utilization - a.utilization;
+          if (b.focus !== a.focus) return b.focus - a.focus;
+          if (trial.usesBreadthTiebreaker && b.breadth !== a.breadth) return b.breadth - a.breadth;
+          return 0;
+        });
+
+        // Assign places
+        const results = [];
+        let currentPlace = 1;
+        for (let i = 0; i < attempts.length; i++) {
+          const attempt = attempts[i];
+          if (i > 0) {
+            const prev = attempts[i - 1];
+            const tied = prev.totalPower === attempt.totalPower &&
+                         prev.utilization === attempt.utilization &&
+                         prev.focus === attempt.focus &&
+                         (!trial.usesBreadthTiebreaker || prev.breadth === attempt.breadth);
+            if (!tied) currentPlace = i + 1;
+          }
+          results.push({ ...attempt, place: currentPlace });
+        }
+
+        return results;
+      };
+
+      // Calculate all trial results
+      const trialResults = {};
+      availableTrials.forEach(trial => {
+        trialResults[trial.id] = calculateTrialResults(trial);
+      });
+
+      // Calculate recognition points for each wizard
+      const wizardRP = {};
+      wizards.forEach(w => { wizardRP[w.id] = 0; });
+
+      Object.entries(trialResults).forEach(([trialId, results]) => {
+        if (!results || results.length === 0) return;
+        const rpForTrial = recognitionTable[trialId] || {};
+        results.forEach(result => {
+          const rp = rpForTrial[result.place] || 0;
+          wizardRP[result.wizardId] = (wizardRP[result.wizardId] || 0) + rp;
+        });
+      });
+
+      // Sort wizards by total RP
+      const finalStandings = wizards.map(w => ({
+        ...w,
+        totalRP: wizardRP[w.id] || 0
+      })).sort((a, b) => b.totalRP - a.totalRP);
+
       return (
-        <div className="card">
-          <h2>Results</h2>
-          <p className="muted">Results phase UI not implemented in this build.</p>
+        <div className="stack">
+          <div className="card">
+            <h2>🏆 Ascension Trial Results</h2>
+            <p className="subtitle">Recognition Points Awarded</p>
+          </div>
+
+          {availableTrials.map(trial => {
+            const results = trialResults[trial.id] || [];
+            const rpForTrial = recognitionTable[trial.id] || {};
+
+            return (
+              <div key={trial.id} className="card">
+                <h3>{trial.name}</h3>
+                <p className="small muted">{trial.description}</p>
+
+                {results.length === 0 ? (
+                  <p className="muted" style={{ marginTop: '1rem' }}>No valid attempts</p>
+                ) : (
+                  <div className="stack" style={{ marginTop: '1rem' }}>
+                    {results.map((result, idx) => {
+                      const rp = rpForTrial[result.place] || 0;
+                      const isWinner = result.place === 1;
+
+                      return (
+                        <div
+                          key={result.wizardId}
+                          className="info-box"
+                          style={{
+                            background: isWinner ? 'rgba(234, 179, 8, 0.15)' : undefined,
+                            border: isWinner ? '2px solid rgba(234, 179, 8, 0.5)' : undefined
+                          }}
+                        >
+                          <div className="row between wrap">
+                            <div>
+                              <h4 style={{ marginBottom: '0.25rem' }}>
+                                {isWinner && '👑 '}
+                                {result.wizardName}
+                                {result.place <= 2 && playerCount >= 6 && ` (${result.place === 1 ? '1st' : '2nd'})`}
+                              </h4>
+                              <div className="pill">Total Power: {result.totalPower}</div>
+                            </div>
+                            {rp > 0 && (
+                              <div className="highlight" style={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                +{rp} RP
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="domain-grid" style={{ marginTop: '0.75rem' }}>
+                            {Object.entries(result.allocation).map(([domain, power]) => {
+                              if (power === 0) return null;
+                              return (
+                                <div key={domain} className="domain-item">
+                                  <div className="row between">
+                                    <span className="small muted">{DOMAIN_NAMES[domain] || domain}</span>
+                                    <span>{power}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {idx > 0 && (
+                            <p className="small muted" style={{ marginTop: '0.5rem' }}>
+                              Utilization: {(result.utilization * 100).toFixed(1)}% • Focus: {(result.focus * 100).toFixed(1)}%
+                              {trial.usesBreadthTiebreaker && ` • Sources: ${result.breadth}`}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          <div className="card">
+            <h2>Final Standings</h2>
+            <div className="stack" style={{ marginTop: '1rem' }}>
+              {finalStandings.map((wizard, idx) => (
+                <div
+                  key={wizard.id}
+                  className="wizard-card"
+                  style={{
+                    background: idx === 0 ? 'rgba(234, 179, 8, 0.15)' : undefined,
+                    border: idx === 0 ? '2px solid rgba(234, 179, 8, 0.5)' : undefined
+                  }}
+                >
+                  <div className="row between">
+                    <h3>{idx === 0 && '🏆 '}{wizard.name}</h3>
+                    <div className="highlight" style={{ fontSize: '2rem', fontWeight: 700 }}>
+                      {wizard.totalRP} RP
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       );
     }
@@ -532,6 +1185,22 @@
     function ArchmageAscensionApp() {
       const [gameState, setGameState] = useState('setup');
       const [wizards, setWizards] = useState([]);
+      const [allocations, setAllocations] = useState({});
+
+      const startTrial = () => {
+        setGameState('voting');
+      };
+
+      const finishVoting = (finalAllocations) => {
+        setAllocations(finalAllocations);
+        setGameState('results');
+      };
+
+      const resetGame = () => {
+        setGameState('setup');
+        setWizards([]);
+        setAllocations({});
+      };
 
       return (
         <div className="container app-shell">
@@ -541,15 +1210,15 @@
           </header>
 
           {gameState === 'setup' && (
-            <SetupPhase wizards={wizards} setWizards={setWizards} />
+            <SetupPhase wizards={wizards} setWizards={setWizards} startTrial={startTrial} />
           )}
 
           {gameState === 'voting' && (
-            <VotingPhase />
+            <VotingPhase wizards={wizards} onFinishVoting={finishVoting} />
           )}
 
           {gameState === 'results' && (
-            <ResultsPhase />
+            <ResultsPhase wizards={wizards} allocations={allocations} />
           )}
         </div>
       );
