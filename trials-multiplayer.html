@@ -249,8 +249,8 @@
       const [open, setOpen] = useState(true);
 
       const addSpell = (typeId) => {
-        const defaultElementName = ELEMENTS[0]?.name || 'Earth';
-        setSpells(prev => [...prev, { id: Date.now() + Math.random(), type: typeId, element: defaultElementName, size: 3 }]);
+        const defaultElementId = ELEMENTS[0]?.id || 'earth';
+        setSpells(prev => [...prev, { id: Date.now() + Math.random(), type: typeId, element: defaultElementId, size: 3 }]);
       };
       const updateSpell = (id, field, value) => setSpells(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
       const removeSpell = (id) => setSpells(prev => prev.filter(s => s.id !== id));
@@ -334,7 +334,7 @@
                               <div className="field">
                                 <label>Element</label>
                                 <select value={spell.element} onChange={(e) => updateSpell(spell.id, 'element', e.target.value)}>
-                                  {ELEMENTS.map(el => <option key={el.id} value={el.name}>{(el.symbol || '')} {el.name}</option>)}
+                                  {ELEMENTS.map(el => <option key={el.id} value={el.id}>{(el.symbol || '')} {el.name}</option>)}
                                 </select>
                               </div>
                             )}
@@ -554,7 +554,9 @@
       const myRef = db.ref(`rooms/${roomId}/players/${MY_ID}`);
 
       const handleDomainsCalculated = useCallback((domains) => {
-        if (!manual) myRef.update({ domains });
+        if (!manual) {
+          try { myRef.update({ domains }); } catch (e) { console.error('Failed to sync domains:', e); }
+        }
       }, [manual, roomId]);
 
       const handleManualChange = (domainKey, value) => {
@@ -1241,6 +1243,37 @@
     }
 
     // =========================================================================
+    // ERROR BOUNDARY — catches render errors and shows a message instead of
+    // blanking the page
+    // =========================================================================
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="container app-shell">
+              <header><h1>{TEXT.gameName}</h1></header>
+              <div className="warning-box" style={{ marginTop: '1rem' }}>
+                <strong>Something went wrong</strong>
+                <p className="small muted" style={{ marginTop: '0.5rem' }}>{this.state.error?.message}</p>
+                <button className="btn-primary" onClick={() => this.setState({ hasError: false, error: null })} style={{ marginTop: '1rem' }}>
+                  Try Again
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    // =========================================================================
     // MAIN APP — manages Firebase connection and game state
     // =========================================================================
     function ArchmageMultiplayerApp() {
@@ -1420,7 +1453,7 @@
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<ArchmageMultiplayerApp />);
+    root.render(<ErrorBoundary><ArchmageMultiplayerApp /></ErrorBoundary>);
   </script>
 </body>
 </html>
