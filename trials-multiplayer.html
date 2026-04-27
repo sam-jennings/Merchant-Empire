@@ -249,8 +249,8 @@
       const [open, setOpen] = useState(true);
 
       const addSpell = (typeId) => {
-        const defaultElementName = ELEMENTS[0]?.name || 'Earth';
-        setSpells(prev => [...prev, { id: Date.now() + Math.random(), type: typeId, element: defaultElementName, size: 3 }]);
+        const defaultElementId = ELEMENTS[0]?.id || 'earth';
+        setSpells(prev => [...prev, { id: Date.now() + Math.random(), type: typeId, element: defaultElementId, size: 3 }]);
       };
       const updateSpell = (id, field, value) => setSpells(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
       const removeSpell = (id) => setSpells(prev => prev.filter(s => s.id !== id));
@@ -334,13 +334,13 @@
                               <div className="field">
                                 <label>Element</label>
                                 <select value={spell.element} onChange={(e) => updateSpell(spell.id, 'element', e.target.value)}>
-                                  {ELEMENTS.map(el => <option key={el.id} value={el.name}>{(el.symbol || '')} {el.name}</option>)}
+                                  {ELEMENTS.map(el => <option key={el.id} value={el.id}>{(el.symbol || '')} {el.name}</option>)}
                                 </select>
                               </div>
                             )}
                             <div className="field">
                               <label>Size</label>
-                              <input type="number" min="0" value={spell.size} onChange={(e) => updateSpell(spell.id, 'size', Math.max(0, parseInt(e.target.value || '0', 10)))} />
+                              <input type="number" min="0" value={spell.size || ''} placeholder="0" onFocus={(e) => e.target.select()} onChange={(e) => updateSpell(spell.id, 'size', Math.max(0, parseInt(e.target.value || '0', 10)))} />
                             </div>
                           </div>
                           <div className="divider" />
@@ -380,6 +380,25 @@
       const hasRoomFromURL = !!getRoomFromURL();
       const [joining, setJoining] = useState(false);
       const [error, setError] = useState('');
+      const [lockedRoom, setLockedRoom] = useState('');
+
+      const handleResetRoom = async () => {
+        const room = lockedRoom;
+        const name = wizardName.trim();
+        if (!name) { setError('Enter your wizard name first.'); return; }
+        setJoining(true); setError('');
+        try {
+          const roomRef = db.ref(`rooms/${room}`);
+          await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP, lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
+          await roomRef.child(`players/${MY_ID}`).update({ name, domains: emptyDomains(), ready: false, locked: false, online: true, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+          roomRef.child(`players/${MY_ID}/online`).onDisconnect().set(false);
+          setRoomInURL(room);
+          onJoin(room, name);
+        } catch (err) {
+          setError('Reset failed: ' + err.message);
+          setJoining(false);
+        }
+      };
 
       const handleJoin = async () => {
         const room = roomName.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -400,9 +419,17 @@
               // Allow rejoin if this player ID is already in the room
               const existingPlayer = data.players && data.players[MY_ID];
               if (!existingPlayer) {
-                setError('This game is already in progress. Wait for it to finish.');
-                setJoining(false);
-                return;
+                const STALE_MS = 24 * 60 * 60 * 1000; // 24 hours
+                const lastActivity = data.lastActivityAt || data.createdAt;
+                if (lastActivity && Date.now() - lastActivity > STALE_MS) {
+                  // Stale game — automatically reset before joining
+                  await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP, lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
+                } else {
+                  setLockedRoom(room);
+                  setError('This game is already in progress. Wait for it to finish, or reset the room if it was abandoned.');
+                  setJoining(false);
+                  return;
+                }
               }
             }
             // Check for duplicate names (but allow same player to rejoin)
@@ -416,7 +443,7 @@
             }
           } else {
             // Create new room
-            await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP });
+            await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP, lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
           }
 
           // Add/update this player
@@ -461,7 +488,19 @@
             </>
           )}
 
-          {error && <div className="warning-box" style={{ marginBottom: '1rem' }}>{error}</div>}
+          {error && (
+            <div className="warning-box" style={{ marginBottom: '1rem' }}>
+              <div>{error}</div>
+              {lockedRoom && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  <p className="small muted">If this game was abandoned, you can wipe it and start fresh.</p>
+                  <button className="btn-danger" onClick={handleResetRoom} disabled={joining} style={{ marginTop: '0.5rem', width: '100%', minHeight: '44px' }}>
+                    Reset Room &amp; Join
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="stack">
             {!hasRoomFromURL && (
@@ -515,7 +554,9 @@
       const myRef = db.ref(`rooms/${roomId}/players/${MY_ID}`);
 
       const handleDomainsCalculated = useCallback((domains) => {
-        if (!manual) myRef.update({ domains });
+        if (!manual) {
+          try { myRef.update({ domains }); } catch (e) { console.error('Failed to sync domains:', e); }
+        }
       }, [manual, roomId]);
 
       const handleManualChange = (domainKey, value) => {
@@ -539,7 +580,7 @@
       const allReady = players.length >= 2 && players.every(p => p.ready && Object.values(p.domains).some(v => v > 0));
 
       const startTrial = () => {
-        db.ref(`rooms/${roomId}/phase`).set('voting');
+        db.ref(`rooms/${roomId}`).update({ phase: 'voting', lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
       };
 
       const myTotalPower = Object.values(myPlayer?.domains || {}).reduce((s, v) => s + v, 0);
@@ -588,7 +629,7 @@
                     <div key={domainKey} className="domain-item">
                       <div className="field">
                         <label>{domainName}</label>
-                        <input type="number" min="0" value={manualDomains[domainKey] ?? 0} onChange={(e) => handleManualChange(domainKey, e.target.value)} />
+                        <input type="number" min="0" value={manualDomains[domainKey] || ''} placeholder="0" onFocus={(e) => e.target.select()} onChange={(e) => handleManualChange(domainKey, e.target.value)} />
                       </div>
                     </div>
                   ))}
@@ -720,7 +761,7 @@
       const allLocked = players.every(p => p.locked);
 
       const revealResults = () => {
-        db.ref(`rooms/${roomId}/phase`).set('results');
+        db.ref(`rooms/${roomId}`).update({ phase: 'results', lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
       };
 
       const getValidationFeedback = (trial, trialAlloc) => {
@@ -924,7 +965,9 @@
                                   <p className="small muted" style={{ fontSize: '0.7rem', marginBottom: '0.25rem', fontStyle: 'italic' }}>Add regular power first</p>
                                 )}
                                 <input
-                                  type="number" min="0" max={maxAllowable} value={currentAlloc}
+                                  type="number" min="0" max={maxAllowable} value={currentAlloc || ''}
+                                  placeholder="0"
+                                  onFocus={(e) => e.target.select()}
                                   onChange={(e) => updateAllocation(trial.id, domain, e.target.value)}
                                   disabled={isDisabled}
                                   style={{
@@ -1202,6 +1245,37 @@
     }
 
     // =========================================================================
+    // ERROR BOUNDARY — catches render errors and shows a message instead of
+    // blanking the page
+    // =========================================================================
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="container app-shell">
+              <header><h1>{TEXT.gameName}</h1></header>
+              <div className="warning-box" style={{ marginTop: '1rem' }}>
+                <strong>Something went wrong</strong>
+                <p className="small muted" style={{ marginTop: '0.5rem' }}>{this.state.error?.message}</p>
+                <button className="btn-primary" onClick={() => this.setState({ hasError: false, error: null })} style={{ marginTop: '1rem' }}>
+                  Try Again
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    // =========================================================================
     // MAIN APP — manages Firebase connection and game state
     // =========================================================================
     function ArchmageMultiplayerApp() {
@@ -1381,7 +1455,7 @@
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<ArchmageMultiplayerApp />);
+    root.render(<ErrorBoundary><ArchmageMultiplayerApp /></ErrorBoundary>);
   </script>
 </body>
 </html>
