@@ -108,7 +108,12 @@
       .trial-selection-btn { padding: 0.875rem !important; min-height: 60px; }
     }
 
-    .allocation-sticky-header { position: static; }
+    .allocation-sticky-header {
+      position: sticky;
+      top: 0.5rem;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+    }
     .trial-card {
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -168,6 +173,33 @@
       width: min(980px, 100%);
       max-height: 78vh;
       overflow: auto;
+    }
+    .wizard-compact-list {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+    .wizard-compact-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.35rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+    }
+    .wizard-initial {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.62rem;
     }
   </style>
 </head>
@@ -852,6 +884,21 @@
         updateAllocation(trialId, domain, clamped);
       };
 
+      const getWizardStyle = (name = '') => {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        const hue = Math.abs(hash) % 360;
+        return { background: `hsl(${hue}, 78%, 72%)` };
+      };
+
+      const getInitials = (name = '?') => {
+        const parts = name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return '?';
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      };
+
+
       return (
         <div className="stack">
           <div className="card">
@@ -1002,6 +1049,18 @@
                           {feedback.type === 'valid' ? 'Valid setup' : 'Needs valid setup'}
                         </span>
                       )}
+                    </div>
+                    <div className="wizard-compact-list" onClick={(e) => e.preventDefault()}>
+                      {players.filter(p => p.id !== MY_ID).map(w => {
+                        const domainTotal = shownDomains.reduce((sum, d) => sum + (w.domains?.[d] || 0), 0);
+                        const tooltip = `${w.name}: ${shownDomains.map(d => `${DOMAIN_NAMES[d] || d} ${w.domains?.[d] || 0}`).join(', ')}`;
+                        return (
+                          <span key={w.id} className="wizard-compact-chip" title={tooltip}>
+                            <span className="wizard-initial" style={getWizardStyle(w.name)}>{getInitials(w.name)}</span>
+                            <span>{domainTotal}</span>
+                          </span>
+                        );
+                      })}
                     </div>
                   </summary>
 
