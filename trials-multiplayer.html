@@ -340,7 +340,7 @@
                             )}
                             <div className="field">
                               <label>Size</label>
-                              <input type="number" min="0" value={spell.size} onChange={(e) => updateSpell(spell.id, 'size', Math.max(0, parseInt(e.target.value || '0', 10)))} />
+                              <input type="number" min="0" value={spell.size || ''} placeholder="0" onFocus={(e) => e.target.select()} onChange={(e) => updateSpell(spell.id, 'size', Math.max(0, parseInt(e.target.value || '0', 10)))} />
                             </div>
                           </div>
                           <div className="divider" />
@@ -629,7 +629,7 @@
                     <div key={domainKey} className="domain-item">
                       <div className="field">
                         <label>{domainName}</label>
-                        <input type="number" min="0" value={manualDomains[domainKey] ?? 0} onChange={(e) => handleManualChange(domainKey, e.target.value)} />
+                        <input type="number" min="0" value={manualDomains[domainKey] || ''} placeholder="0" onFocus={(e) => e.target.select()} onChange={(e) => handleManualChange(domainKey, e.target.value)} />
                       </div>
                     </div>
                   ))}
@@ -965,7 +965,9 @@
                                   <p className="small muted" style={{ fontSize: '0.7rem', marginBottom: '0.25rem', fontStyle: 'italic' }}>Add regular power first</p>
                                 )}
                                 <input
-                                  type="number" min="0" max={maxAllowable} value={currentAlloc}
+                                  type="number" min="0" max={maxAllowable} value={currentAlloc || ''}
+                                  placeholder="0"
+                                  onFocus={(e) => e.target.select()}
                                   onChange={(e) => updateAllocation(trial.id, domain, e.target.value)}
                                   disabled={isDisabled}
                                   style={{
