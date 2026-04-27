@@ -152,6 +152,28 @@
       text-align: center;
       font-size: 0.95rem;
     }
+    .power-reference-fab {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 30;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+    }
+    .power-reference-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(5, 7, 16, 0.72);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0.75rem;
+    }
+    .power-reference-panel {
+      width: min(980px, 100%);
+      max-height: 78vh;
+      overflow: auto;
+    }
     .wizard-compact-list {
       display: flex;
       gap: 0.35rem;
@@ -774,6 +796,7 @@
         return initial;
       });
       const [isLocked, setIsLocked] = useState(!!myPlayer.locked);
+      const [showPowerReference, setShowPowerReference] = useState(false);
 
       const myDomains = myPlayer.domains || emptyDomains();
 
@@ -875,6 +898,7 @@
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
       };
 
+
       return (
         <div className="stack">
           <div className="card">
@@ -901,6 +925,61 @@
               ))}
             </div>
           </div>
+
+          <button
+            className="btn-secondary power-reference-fab"
+            onClick={() => setShowPowerReference(v => !v)}
+            aria-expanded={showPowerReference}
+            aria-controls="power-reference-panel"
+          >
+            {showPowerReference ? 'Hide Domain Power' : 'Show Domain Power'}
+          </button>
+
+          {showPowerReference && (
+            <div className="power-reference-overlay" onClick={() => setShowPowerReference(false)}>
+              <div
+                id="power-reference-panel"
+                className="card power-reference-panel"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="row between wrap" style={{ gap: '0.5rem', marginBottom: '0.75rem' }}>
+                  <h4 style={{ margin: 0 }}>All {TEXT.playerNounPlural}' Domain Power</h4>
+                  <button className="btn-secondary" onClick={() => setShowPowerReference(false)}>Close</button>
+                </div>
+                <table className="reference-table" style={{ width: '100%', minWidth: '600px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                      <th style={{ padding: '0.75rem', textAlign: 'left' }}>{TEXT.playerNoun}</th>
+                      {Object.entries(DOMAIN_NAMES).map(([key, name]) => (
+                        <th key={key} style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.85rem' }}>{name}</th>
+                      ))}
+                      <th style={{ padding: '0.75rem', textAlign: 'center' }}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {players.map(w => (
+                      <tr key={w.id} style={{
+                        borderBottom: '1px solid var(--border)',
+                        background: w.id === MY_ID ? 'var(--card-bg-hover)' : 'transparent'
+                      }}>
+                        <td style={{ padding: '0.75rem', fontWeight: 600 }}>
+                          {w.name} {w.id === MY_ID ? '(you)' : ''} {w.locked && '🔒'}
+                        </td>
+                        {Object.keys(DOMAIN_NAMES).map(domainKey => (
+                          <td key={domainKey} style={{ padding: '0.75rem', textAlign: 'center' }}>
+                            {w.domains[domainKey] || 0}
+                          </td>
+                        ))}
+                        <td style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 700 }}>
+                          {Object.values(w.domains).reduce((sum, v) => sum + v, 0)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           <div className="allocation-sticky-header card">
             {isLocked && (
