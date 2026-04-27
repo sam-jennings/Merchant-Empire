@@ -108,12 +108,6 @@
       .trial-selection-btn { padding: 0.875rem !important; min-height: 60px; }
     }
 
-    .allocation-sticky-header {
-      position: sticky;
-      top: 0.5rem;
-      z-index: 20;
-      backdrop-filter: blur(8px);
-    }
     .trial-card {
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -981,7 +975,7 @@
             </div>
           )}
 
-          <div className="allocation-sticky-header card">
+          <div className="card">
             {isLocked && (
               <div className="warning-box" style={{ marginBottom: '0.75rem' }}>
                 <strong>Locked:</strong> Unlock to make changes
