@@ -476,14 +476,16 @@
 
                 <div class="card wide-card">
                     <h3>Recognition Points by Spell Size</h3>
-                    <table>
+                    <p class="scroll-hint">Swipe sideways to see every spell type.</p>
+                    <div class="table-scroll" tabindex="0" aria-label="Recognition points table, scroll sideways on small screens">
+                    <table class="scoring-table">
                         <thead>
                             <tr>
                                 <th>Size</th>
-                                <th>Conjuration</th>
-                                <th>Transfiguration</th>
-                                <th>Enchantment</th>
-                                <th>Perfect Transmutation</th>
+                                <th><button type="button" class="spell-ref-button" data-spell="Conjuration">Conjuration</button></th>
+                                <th><button type="button" class="spell-ref-button" data-spell="Transfiguration">Transfiguration</button></th>
+                                <th><button type="button" class="spell-ref-button" data-spell="Enchantment">Enchantment</button></th>
+                                <th><button type="button" class="spell-ref-button" data-spell="Perfect Transmutation">Perfect Transmutation</button></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -499,6 +501,7 @@
                             <tr><td>12</td><td>48</td><td>59</td><td>—</td><td>70</td></tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -507,10 +510,10 @@
                     
                     <h4>Your Spellbook</h4>
                     <ul>
-                        <li>5-component Conjuration = <span class="highlight">6 points</span></li>
-                        <li>4-component Transfiguration = <span class="highlight">7 points</span></li>
-                        <li>3-component Enchantment = <span class="highlight">6 points</span></li>
-                        <li>6-component Perfect Transmutation = <span class="highlight">19 points</span></li>
+                        <li>5-component <button type="button" class="spell-ref-button inline" data-spell="Conjuration">Conjuration</button> = <span class="highlight">6 points</span></li>
+                        <li>4-component <button type="button" class="spell-ref-button inline" data-spell="Transfiguration">Transfiguration</button> = <span class="highlight">7 points</span></li>
+                        <li>3-component <button type="button" class="spell-ref-button inline" data-spell="Enchantment">Enchantment</button> = <span class="highlight">6 points</span></li>
+                        <li>6-component <button type="button" class="spell-ref-button inline" data-spell="Perfect Transmutation">Perfect Transmutation</button> = <span class="highlight">19 points</span></li>
                     </ul>
                     
                     <div class="phase-box" style="margin-top: 1rem;">
@@ -523,12 +526,25 @@
                     <h3>Quick Tips</h3>
                     
                     <ul>
-                        <li><span class="highlight">Perfect Transmutations</span> score the highest per component</li>
-                        <li><span class="highlight">4-component Enchantments</span> have a huge scoring spike (15 points)</li>
+                        <li><button type="button" class="spell-ref-button inline" data-spell="Perfect Transmutation">Perfect Transmutations</button> score the highest per component</li>
+                        <li><span class="highlight">4-component</span> <button type="button" class="spell-ref-button inline" data-spell="Enchantment">Enchantments</button> have a huge scoring spike (15 points)</li>
                         <li>Longer spells score <span class="highlight">exponentially better</span> than multiple short ones</li>
                         <li>A single 7-component spell often scores more than two 4-component spells</li>
                     </ul>
                 </div>
+            </div>
+        </div>
+
+        <div class="spell-popover-backdrop" id="spellPopover" hidden>
+            <div class="spell-popover" role="dialog" aria-modal="true" aria-labelledby="spellPopoverTitle">
+                <button type="button" class="spell-popover-close" aria-label="Close spell reference">&times;</button>
+                <h3 id="spellPopoverTitle"></h3>
+                <dl>
+                    <dt>Combination</dt>
+                    <dd id="spellPopoverCombination"></dd>
+                    <dt>Action</dt>
+                    <dd id="spellPopoverAction"></dd>
+                </dl>
             </div>
         </div>
 
@@ -754,6 +770,86 @@
             // Add active class to clicked tab
             event.target.classList.add('active');
         }
+
+        function getSpellReference(spellName) {
+            const spellCards = document.querySelectorAll('#spells .card');
+            for (const card of spellCards) {
+                const title = card.querySelector('h3');
+                if (!title || title.textContent.trim() !== spellName) continue;
+
+                const actionHeading = spellName === 'Enchantment' ? 'Benefit (Always Active)' : 'Benefit When Cast';
+
+                return {
+                    title: title.textContent.trim(),
+                    combination: getTextAfterHeading(card, 'Requirements', false),
+                    action: getTextAfterHeading(card, actionHeading, true)
+                };
+            }
+
+            return null;
+        }
+
+        function getTextAfterHeading(card, headingText, includeListItems) {
+            const headings = card.querySelectorAll('h4');
+            for (const heading of headings) {
+                if (heading.textContent.trim() !== headingText) continue;
+
+                let node = heading.nextElementSibling;
+                const parts = [];
+                while (node && node.tagName !== 'H4') {
+                    if (node.matches('p, .note')) {
+                        parts.push(node.textContent.trim().replace(/\s+/g, ' '));
+                    }
+
+                    if (includeListItems && node.matches('ul')) {
+                        node.querySelectorAll('li').forEach(function(item) {
+                            parts.push(item.textContent.trim().replace(/\s+/g, ' '));
+                        });
+                    }
+
+                    if (!includeListItems && parts.length) break;
+                    node = node.nextElementSibling;
+                }
+
+                return parts.join(' ');
+            }
+
+            return '';
+        }
+
+        function openSpellPopover(spellName) {
+            const reference = getSpellReference(spellName);
+            if (!reference) return;
+
+            document.getElementById('spellPopoverTitle').textContent = reference.title;
+            document.getElementById('spellPopoverCombination').textContent = reference.combination;
+            document.getElementById('spellPopoverAction').textContent = reference.action;
+            document.getElementById('spellPopover').hidden = false;
+        }
+
+        function closeSpellPopover() {
+            document.getElementById('spellPopover').hidden = true;
+        }
+
+        document.addEventListener('click', function(event) {
+            const trigger = event.target.closest('.spell-ref-button');
+            const popover = document.getElementById('spellPopover');
+
+            if (trigger) {
+                openSpellPopover(trigger.dataset.spell);
+                return;
+            }
+
+            if (event.target.matches('.spell-popover-close') || event.target === popover) {
+                closeSpellPopover();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSpellPopover();
+            }
+        });
     </script>
 </body>
 </html>
