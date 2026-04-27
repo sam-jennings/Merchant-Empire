@@ -380,6 +380,25 @@
       const hasRoomFromURL = !!getRoomFromURL();
       const [joining, setJoining] = useState(false);
       const [error, setError] = useState('');
+      const [lockedRoom, setLockedRoom] = useState('');
+
+      const handleResetRoom = async () => {
+        const room = lockedRoom;
+        const name = wizardName.trim();
+        if (!name) { setError('Enter your wizard name first.'); return; }
+        setJoining(true); setError('');
+        try {
+          const roomRef = db.ref(`rooms/${room}`);
+          await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP, lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
+          await roomRef.child(`players/${MY_ID}`).update({ name, domains: emptyDomains(), ready: false, locked: false, online: true, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+          roomRef.child(`players/${MY_ID}/online`).onDisconnect().set(false);
+          setRoomInURL(room);
+          onJoin(room, name);
+        } catch (err) {
+          setError('Reset failed: ' + err.message);
+          setJoining(false);
+        }
+      };
 
       const handleJoin = async () => {
         const room = roomName.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -400,9 +419,17 @@
               // Allow rejoin if this player ID is already in the room
               const existingPlayer = data.players && data.players[MY_ID];
               if (!existingPlayer) {
-                setError('This game is already in progress. Wait for it to finish.');
-                setJoining(false);
-                return;
+                const STALE_MS = 24 * 60 * 60 * 1000; // 24 hours
+                const lastActivity = data.lastActivityAt || data.createdAt;
+                if (lastActivity && Date.now() - lastActivity > STALE_MS) {
+                  // Stale game — automatically reset before joining
+                  await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP, lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
+                } else {
+                  setLockedRoom(room);
+                  setError('This game is already in progress. Wait for it to finish, or reset the room if it was abandoned.');
+                  setJoining(false);
+                  return;
+                }
               }
             }
             // Check for duplicate names (but allow same player to rejoin)
@@ -416,7 +443,7 @@
             }
           } else {
             // Create new room
-            await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP });
+            await roomRef.set({ phase: 'setup', createdAt: firebase.database.ServerValue.TIMESTAMP, lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
           }
 
           // Add/update this player
@@ -461,7 +488,19 @@
             </>
           )}
 
-          {error && <div className="warning-box" style={{ marginBottom: '1rem' }}>{error}</div>}
+          {error && (
+            <div className="warning-box" style={{ marginBottom: '1rem' }}>
+              <div>{error}</div>
+              {lockedRoom && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  <p className="small muted">If this game was abandoned, you can wipe it and start fresh.</p>
+                  <button className="btn-danger" onClick={handleResetRoom} disabled={joining} style={{ marginTop: '0.5rem', width: '100%', minHeight: '44px' }}>
+                    Reset Room &amp; Join
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="stack">
             {!hasRoomFromURL && (
@@ -539,7 +578,7 @@
       const allReady = players.length >= 2 && players.every(p => p.ready && Object.values(p.domains).some(v => v > 0));
 
       const startTrial = () => {
-        db.ref(`rooms/${roomId}/phase`).set('voting');
+        db.ref(`rooms/${roomId}`).update({ phase: 'voting', lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
       };
 
       const myTotalPower = Object.values(myPlayer?.domains || {}).reduce((s, v) => s + v, 0);
@@ -720,7 +759,7 @@
       const allLocked = players.every(p => p.locked);
 
       const revealResults = () => {
-        db.ref(`rooms/${roomId}/phase`).set('results');
+        db.ref(`rooms/${roomId}`).update({ phase: 'results', lastActivityAt: firebase.database.ServerValue.TIMESTAMP });
       };
 
       const getValidationFeedback = (trial, trialAlloc) => {
